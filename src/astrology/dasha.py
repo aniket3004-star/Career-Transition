@@ -11,6 +11,7 @@ Moon, Mars, Rahu, Jupiter, Saturn, Mercury; years use 365.2425 days.
 """
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+import math
 from typing import Tuple
 
 NAKSHATRA_DEGREES = 360.0 / 27.0
@@ -30,7 +31,7 @@ class DashaPeriod:
 
 
 def _utc(dt: datetime) -> datetime:
-    if dt.tzinfo is None or dt.utcoffset() is None:
+    if not isinstance(dt, datetime) or dt.tzinfo is None or dt.utcoffset() is None:
         raise ValueError("birth_datetime must be timezone-aware")
     return dt.astimezone(timezone.utc)
 
@@ -39,14 +40,18 @@ def vimshottari_timeline(birth_datetime: datetime, sidereal_moon_longitude: floa
                          mahadasha_count: int = 9) -> Tuple[DashaPeriod, ...]:
     """Return sequential Mahadasha periods beginning at birth.
 
-    Moon longitude must be finite and in [0, 360). The first period begins at
-    birth and has only the remaining fraction of its lord's full duration;
-    subsequent periods use full durations. `mahadasha_count` is 1..108.
+    Moon longitude must be a finite real number in [0, 360). The first period
+    begins at birth and has only the remaining fraction of its lord's full
+    duration; subsequent periods use full durations. `mahadasha_count` is 1..108.
     """
-    if not isinstance(sidereal_moon_longitude, (int, float)) or not 0 <= sidereal_moon_longitude < 360:
-        raise ValueError("sidereal_moon_longitude must be in [0, 360)")
-    if not 1 <= mahadasha_count <= 108:
-        raise ValueError("mahadasha_count must be between 1 and 108")
+    if (isinstance(sidereal_moon_longitude, bool)
+            or not isinstance(sidereal_moon_longitude, (int, float))
+            or not math.isfinite(sidereal_moon_longitude)
+            or not 0 <= sidereal_moon_longitude < 360):
+        raise ValueError("sidereal_moon_longitude must be finite and in [0, 360)")
+    if (isinstance(mahadasha_count, bool) or not isinstance(mahadasha_count, int)
+            or not 1 <= mahadasha_count <= 108):
+        raise ValueError("mahadasha_count must be an integer between 1 and 108")
     birth = _utc(birth_datetime)
     nak_index = int(sidereal_moon_longitude / NAKSHATRA_DEGREES)
     fraction_elapsed = (sidereal_moon_longitude % NAKSHATRA_DEGREES) / NAKSHATRA_DEGREES
@@ -66,7 +71,11 @@ def vimshottari_timeline(birth_datetime: datetime, sidereal_moon_longitude: floa
 
 def antardasha_timeline(mahadasha: DashaPeriod) -> Tuple[DashaPeriod, ...]:
     """Return the nine proportional Antardashas within one Mahadasha."""
-    if mahadasha.lord not in DASHA_YEARS or mahadasha.end <= mahadasha.start:
+    if (not isinstance(mahadasha, DashaPeriod)
+            or mahadasha.lord not in DASHA_YEARS
+            or not isinstance(mahadasha.start, datetime)
+            or not isinstance(mahadasha.end, datetime)
+            or mahadasha.end <= mahadasha.start):
         raise ValueError("invalid Mahadasha period")
     lord_index = LORDS.index(mahadasha.lord)
     total_seconds = (mahadasha.end - mahadasha.start).total_seconds()
