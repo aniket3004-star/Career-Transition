@@ -1,0 +1,2 @@
+# V1-alpha uses Python 3.11 stdlib only.
+# Add packages here when V2 calculation work starts.
