@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from src.cli import main
+from cli import main
 
 
 class CliTests(unittest.TestCase):
