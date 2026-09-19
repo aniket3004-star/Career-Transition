@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Personal/sensitive inputs and generated outputs
+birth-data/
+private-data/
+local-data/
+outputs/
+*.birth.json
+*.chart.json
+
+# Archive dumps and local artifacts
+*.zip
+*.log
+.DS_Store
