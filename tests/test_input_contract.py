@@ -56,6 +56,18 @@ class InputContractTests(unittest.TestCase):
         result = validate_birth_input(payload)
         self.assertFalse(result.valid)
 
+    def test_rejects_boolean_coordinates(self):
+        payload = dict(VALID, latitude=True)
+        result = validate_birth_input(payload)
+        self.assertFalse(result.valid)
+        self.assertTrue(any("latitude must be a numeric value" in error for error in result.errors))
+
+    def test_rejects_non_finite_coordinates(self):
+        payload = dict(VALID, longitude=float("inf"))
+        result = validate_birth_input(payload)
+        self.assertFalse(result.valid)
+        self.assertTrue(any("longitude must be finite" in error for error in result.errors))
+
     def test_rejects_naive_calculation_timestamp(self):
         payload = dict(VALID, calculation_timestamp="2026-09-19T12:00:00")
         result = validate_birth_input(payload)
