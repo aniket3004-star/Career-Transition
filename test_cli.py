@@ -1,47 +1,73 @@
+import contextlib
+import io
 import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from cli import main
 
 
+VALID = {
+    "birth_date": "1987-03-09", "birth_time": "10:17", "timezone": "Asia/Kolkata",
+    "latitude": 20.4625, "longitude": 85.8828, "provider": "test-provider",
+    "provider_version": "1.0", "ayanamsha": "Lahiri", "zodiac": "sidereal",
+    "house_system": "Whole Sign", "ephemeris": "Swiss Ephemeris (declared)",
+    "calculation_timestamp": "2026-09-19T12:00:00Z", "provider_settings_verified": True,
+    "source_record_id": "fixture-001",
+}
+
+
 class CliTests(unittest.TestCase):
-    def test_valid_envelope_exits_zero(self):
-        payload = {
-            "birth_date": "1987-03-09",
-            "birth_time": "10:17",
-            "timezone": "Asia/Kolkata",
-            "latitude": 20.4625,
-            "longitude": 85.8828,
-            "provider": "test-provider",
-            "provider_version": "1.0",
-            "ayanamsha": "Lahiri",
-            "zodiac": "sidereal",
-            "house_system": "Whole Sign",
-            "ephemeris": "Swiss Ephemeris (declared)",
-            "calculation_timestamp": "2026-09-19T12:00:00Z",
-            "provider_settings_verified": True,
-            "source_record_id": "fixture-001",
-        }
-        code = main(["--json", json.dumps(payload)])
+    def invoke(self, args):
+        stream = io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            code = main(args)
+        return code, json.loads(stream.getvalue())
+
+    def test_valid_envelope_exits_zero_and_never_enables_career_rules(self):
+        code, output = self.invoke(["--json", json.dumps(VALID)])
         self.assertEqual(code, 0)
+        self.assertTrue(output["schema_valid"])
+        self.assertFalse(output["career_rules_eligible"])
+        self.assertIsNone(output["career_outlook"])
 
     def test_missing_ayanamsha_exits_nonzero(self):
-        payload = {
-            "birth_date": "1987-03-09",
-            "birth_time": "10:17",
-            "timezone": "Asia/Kolkata",
-            "latitude": 20.4625,
-            "longitude": 85.8828,
-            "provider": "test-provider",
-            "provider_version": "1.0",
-            "zodiac": "sidereal",
-            "house_system": "Whole Sign",
-            "ephemeris": "Swiss Ephemeris (declared)",
-            "calculation_timestamp": "2026-09-19T12:00:00Z",
-            "provider_settings_verified": True,
-        }
-        code = main(["--json", json.dumps(payload)])
+        payload = {key: value for key, value in VALID.items() if key != "ayanamsha"}
+        code, output = self.invoke(["--json", json.dumps(payload)])
         self.assertEqual(code, 1)
+        self.assertFalse(output["schema_valid"])
+
+    def test_malformed_json_returns_structured_error_without_traceback(self):
+        code, output = self.invoke(["--json", "{"])
+        self.assertEqual(code, 2)
+        self.assertFalse(output["schema_valid"])
+        self.assertIn("valid JSON", output["errors"][0])
+
+    def test_missing_file_returns_structured_error(self):
+        code, output = self.invoke(["--file", "/path/that/does/not/exist.json"])
+        self.assertEqual(code, 2)
+        self.assertIn("could not be read", output["errors"][0])
+
+    def test_non_object_json_is_rejected(self):
+        code, output = self.invoke(["--json", "[]"])
+        self.assertEqual(code, 2)
+        self.assertIn("JSON object", output["errors"][0])
+
+    def test_save_is_opt_in_and_writes_json(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "nested" / "result.json"
+            code, output = self.invoke(["--json", json.dumps(VALID), "--save", str(target)])
+            self.assertEqual(code, 0)
+            self.assertEqual(json.loads(target.read_text(encoding="utf-8")), output)
+
+    def test_json_and_file_are_mutually_exclusive(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "input.json"
+            target.write_text("{}", encoding="utf-8")
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    main(["--json", "{}", "--file", str(target)])
 
 
 if __name__ == "__main__":
