@@ -55,6 +55,21 @@ class InputContractTests(unittest.TestCase):
         result = validate_birth_input(payload)
         self.assertFalse(result.valid)
 
+    def test_rejects_non_strict_birth_date_format(self):
+        payload = dict(VALID, birth_date="1987-3-9")
+        result = validate_birth_input(payload)
+        self.assertFalse(result.valid)
+
+    def test_rejects_invalid_birth_date(self):
+        payload = dict(VALID, birth_date="1987-02-30")
+        result = validate_birth_input(payload)
+        self.assertFalse(result.valid)
+
+    def test_rejects_invalid_birth_time(self):
+        payload = dict(VALID, birth_time="25:17")
+        result = validate_birth_input(payload)
+        self.assertFalse(result.valid)
+
     def test_warns_when_source_record_id_is_absent(self):
         payload = dict(VALID)
         payload.pop("source_record_id")
