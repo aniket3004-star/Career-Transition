@@ -48,7 +48,13 @@ Save it as `input.synthetic.json`, then run:
 python cli.py --file input.synthetic.json
 ```
 
-A valid schema is **not** proof that the provider values are accurate. The `--save PATH` option explicitly persists the resulting JSON to the path you specify; use a local gitignored location and never commit real birth data or reports. Persistence is off unless `--save` is supplied.
+Persistence is off unless `--save` is supplied. For privacy, `--save` is restricted to the gitignored `outputs/` directory:
+
+```bash
+python cli.py --file input.synthetic.json --save outputs/result.json
+```
+
+A valid schema is **not** proof that provider values are accurate. Never commit real birth data or reports.
 
 ## V1-alpha acceptance boundary
 
