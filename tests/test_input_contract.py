@@ -70,6 +70,18 @@ class InputContractTests(unittest.TestCase):
         result = validate_birth_input(payload)
         self.assertFalse(result.valid)
 
+    def test_rejects_nonexistent_local_birth_time(self):
+        payload = dict(VALID, birth_date="2024-03-10", birth_time="02:30", timezone="America/New_York")
+        result = validate_birth_input(payload)
+        self.assertFalse(result.valid)
+        self.assertTrue(any("nonexistent" in error for error in result.errors))
+
+    def test_rejects_ambiguous_local_birth_time(self):
+        payload = dict(VALID, birth_date="2024-11-03", birth_time="01:30", timezone="America/New_York")
+        result = validate_birth_input(payload)
+        self.assertFalse(result.valid)
+        self.assertTrue(any("ambiguous" in error for error in result.errors))
+
     def test_warns_when_source_record_id_is_absent(self):
         payload = dict(VALID)
         payload.pop("source_record_id")
