@@ -1,35 +1,40 @@
 # Project Status — Career Transition Astrology V1
 
-**Last updated:** 2026-09-19  
+**Last updated:** 2026-09-20  
 **Status:** In progress; no verified autonomous background AI runner.
 
 ## Objective and scope
 Build a testable V1 for Vedic astrology career/job-transition decision support. Scope is limited to career/job transitions. No deterministic outcomes, no unsupported classifications, and no expansion into wealth, health, family, love, legal, or unrelated astrology.
 
 ## Verified this session
-- Confirmed repository `aniket3004-star/Career-Transition` exists, default branch `main`, and connected GitHub permissions report push access.
-- Added [`AUTONOMY_CHARTER.md`](AUTONOMY_CHARTER.md), defining execution loop, guardrails, escalation conditions, and truthful limits on background work.
-- Commit: `36ef915aee56fc59d1c06820481273426c729698`.
-
-## Current verified baseline / caution
-A prior project handoff reported a collection of 20 ZIP artifacts and several analysis documents, but the latest repository metadata reports size 0. Do not assume prior docs/artifacts are currently present or accessible until the repository tree and file inventory are fetched and verified. Historical claims must be reconciled against current evidence.
-
-The authoritative original task register #1–#45 has not been recovered. Do not fabricate task wording or completion status.
+- Added `.gitignore` to exclude Python caches, virtual environments, secrets/local config, private birth-data/output directories, ZIP dumps, and logs.
+- Commit: `9d5776008b2059acee0422c73183be1705c2c760`.
+- Reviewed `V1_ACCEPTANCE.md`, `cli.py`, `src/validation/input_contract.py`, `tests/test_input_contract.py`, README, and artifact audit/disposition/template documents.
+- Confirmed the README does not yet provide exact local run commands; CLI and input-contract tests exist, but this review did not execute them.
+- Checked the Dasha commit combined status; no status entries were returned, so CI cannot be reported green.
 
 ## Validation status
-No calculation, test suite, provider comparison, Dasha/transit validation, deployment, or release was run in this session. Nothing is certified by this status update.
+No local test execution was available in this session. No new CI result verified. No provider comparison, Dasha/transit validation, deployment, or release was run. Nothing is certified by this status update.
+
+## Known acceptance gaps
+- `requirements.txt` exists but does not pin a test dependency; current test suite uses `unittest` from Python standard library.
+- README needs exact local run/test commands and an explicitly synthetic CLI example.
+- CLI behavior for malformed JSON/file errors needs review and tests.
+- Privacy checklist still needs evidence that `--save` targets a gitignored location by default or through documented usage; current CLI accepts arbitrary save paths.
+- `V1_HANDOFF.md` does not yet exist.
+- CI status must be checked on the latest commit before acceptance.
+- The original task register #1–#45 remains unrecovered; do not fabricate it.
+
+## Scope boundary
+V1-alpha is an input-validation CLI only. It does not calculate planetary positions, Dasha, transits, or career outlook. Those remain blocked until a human opens V2 and the required independent validation is completed.
 
 ## Next actions
-1. Fetch current repository tree and reconcile actual contents with handoff references.
-2. Locate and recover exact original tasks #1–#45 from available files/history; if inaccessible, log this as a hard provenance gap without inventing a replacement.
-3. Reconcile all available ZIPs by exact filename, size, SHA-256, manifests, and version differences.
-4. Establish a reproducible local/CI test environment and run existing tests; record logs and limitations.
-5. Build independent goldens for astronomical positions, timezone/birth-input handling, Vimshottari Dasha, and transits before enabling career rules.
-6. Keep unvalidated rule families blocked; then build career-only backtesting and report generation.
-7. Prepare a demonstrable V1 and request explicit human release approval; do not deploy or spend money without approval.
-
-## What can run without further user input
-Within an active chat, proceed with repository inspection, documentation, reversible code changes, tests that the available tools can execute, and evidence logging. A scheduled GitHub Actions workflow can later run deterministic repository scripts and tests, but it is not an autonomous AI developer and cannot continue this chat after it ends.
+1. Add precise README setup/run/test instructions with synthetic data only.
+2. Harden CLI error handling and add tests for malformed JSON, missing files, output shape, and nonzero reject behavior.
+3. Verify privacy behavior and document safe opt-in persistence.
+4. Run tests through CI and capture an actual green result.
+5. Create `V1_HANDOFF.md` only after checklist items have evidence.
+6. Continue repository cleanup only where redundancy is proven; preserve archive until its contents can be inspected.
 
 ## User-only escalation
 Ask only for missing source artifacts/access, authentication or permissions, personal product decisions that cannot be inferred, paid service activation, data retention changes, production deployment, or release approval. Continue independent work meanwhile.
