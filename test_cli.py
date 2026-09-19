@@ -54,12 +54,26 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("JSON object", output["errors"][0])
 
-    def test_save_is_opt_in_and_writes_json(self):
+    def test_save_is_opt_in_and_writes_only_under_gitignored_outputs(self):
         with tempfile.TemporaryDirectory() as directory:
-            target = Path(directory) / "nested" / "result.json"
+            previous = Path.cwd()
+            try:
+                import os
+                os.chdir(directory)
+                target = Path("outputs") / "nested" / "result.json"
+                code, output = self.invoke(["--json", json.dumps(VALID), "--save", str(target)])
+                self.assertEqual(code, 0)
+                self.assertEqual(json.loads(target.read_text(encoding="utf-8")), output)
+            finally:
+                os.chdir(previous)
+
+    def test_save_outside_gitignored_outputs_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "unsafe.json"
             code, output = self.invoke(["--json", json.dumps(VALID), "--save", str(target)])
-            self.assertEqual(code, 0)
-            self.assertEqual(json.loads(target.read_text(encoding="utf-8")), output)
+            self.assertEqual(code, 2)
+            self.assertFalse(output["schema_valid"])
+            self.assertIn("gitignored outputs", output["errors"][0])
 
     def test_json_and_file_are_mutually_exclusive(self):
         with tempfile.TemporaryDirectory() as directory:
