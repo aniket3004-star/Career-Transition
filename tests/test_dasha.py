@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime, timezone
 
 from src.astrology.dasha import (
-    DASHA_YEARS, LORDS, antardasha_timeline, vimshottari_timeline,
+    DASHA_YEARS, antardasha_timeline, vimshottari_timeline,
 )
 
 
@@ -37,11 +37,20 @@ class VimshottariTests(unittest.TestCase):
     def test_rejects_naive_datetime_and_bad_inputs(self):
         with self.assertRaises(ValueError):
             vimshottari_timeline(datetime(2000, 1, 1), 0)
-        for longitude in (-0.1, 360, float("nan")):
+        for longitude in (-0.1, 360, float("nan"), float("inf"), True, "12"):
             with self.assertRaises(ValueError):
                 vimshottari_timeline(datetime(2000, 1, 1, tzinfo=timezone.utc), longitude)
+        for count in (0, 109, True, 2.5, "2"):
+            with self.assertRaises(ValueError):
+                vimshottari_timeline(datetime(2000, 1, 1, tzinfo=timezone.utc), 0, count)
+
+    def test_rejects_non_datetime_birth_value(self):
         with self.assertRaises(ValueError):
-            vimshottari_timeline(datetime(2000, 1, 1, tzinfo=timezone.utc), 0, 0)
+            vimshottari_timeline("2000-01-01", 0)
+
+    def test_rejects_invalid_antardasha_object(self):
+        with self.assertRaises(ValueError):
+            antardasha_timeline(None)
 
 
 if __name__ == "__main__":
