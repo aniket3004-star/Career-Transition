@@ -1,61 +1,68 @@
 # Career Transition Astrology V1
 
-A decision-support project exploring Vedic astrology-based career timing. It is intended to provide transparent interpretations and supporting evidence—not to make career decisions for users or provide deterministic guarantees.
+A local, fail-closed input-validation prototype for a future Vedic astrology career-transition decision-support tool. **This repository is not yet a career forecasting product.** It does not calculate a chart, Dasha, transits, or career outlook.
 
-## Project status
+## Current status
 
-Repository bootstrap. Existing project artifacts (rules, validators, audits, and test packs) are maintained separately and must be reviewed and integrated deliberately. No prior artifact is considered verified merely because it has been reported as created.
+The current CLI validates an explicitly sourced birth-input envelope and emits a JSON status. The calculation layer is not certified; `career_outlook` is always `null`, and the CLI must not be used to make career decisions. `src/astrology/dasha.py` is an isolated experimental calculation module, not wired into the V1-alpha CLI and not independently certified.
 
-## V1 objectives
+## Requirements
 
-- Accept user-provided birth details with clear validation and privacy choices.
-- Calculate and validate geocentric planetary positions, Ascendant, Nakshatra, Vimshottari Mahadasha/Antardasha, and relevant transits.
-- Apply an explicit, auditable career-rule engine.
-- Explain conclusions in plain language with traceable evidence and uncertainty.
-- Present a career-focused outlook over the next 12 months, including Favorable, Mixed, and Challenging periods without numeric scores.
-- Keep the system in decision-support mode: users make their own career choices.
+- Python 3.11+
+- No third-party runtime/test dependencies; tests use Python's standard-library `unittest`.
 
-## Scope and guardrails
+## Run locally
 
-- Primary timing: Vimshottari Mahadasha and Antardasha. Pratyantardasha is considered only after validation.
-- Career houses: 2nd, 6th, 10th, and 11th; 7th when examining a transition from employment to entrepreneurship.
-- Transit focus: Jupiter, Saturn, Rahu, and Ketu.
-- AI may explain validated calculations and rules; it must not independently invent or recalculate astrology data.
-- In-memory processing by default. Persist chart data only with explicit opt-in.
-- No payments in the initial data-collection period.
-- Human approval is required before any release.
+From the repository root:
 
-## Planned architecture
+```bash
+python cli.py --help
+python -m unittest discover -s tests -p 'test_*.py' -v
+python -m unittest -v test_cli
+```
 
-1. Birth-details input and validation.
-2. Calculation layer for chart positions, Ascendant, Nakshatra, Dasha, and transits.
-3. Validated career-rule engine with evidence references and confidence/uncertainty handling.
-4. AI interpretation layer restricted to explaining supplied calculations and rules.
-5. Quality, safety, regression, and incident gates.
-6. Career report with executive summary, monthly outlook, notable windows, and expandable reasoning.
+To exercise the CLI, create a local JSON file (do not use real personal birth details in public examples). Example fixture below is synthetic and demonstrates the required envelope shape, not a verified chart:
 
-## Development workflow
+```json
+{
+  "birth_date": "2000-01-15",
+  "birth_time": "12:00",
+  "timezone": "Asia/Kolkata",
+  "latitude": 20.0,
+  "longitude": 85.0,
+  "provider": "synthetic-fixture",
+  "provider_version": "1.0",
+  "ayanamsha": "Lahiri",
+  "zodiac": "sidereal",
+  "house_system": "Whole Sign",
+  "ephemeris": "declared-only-not-run",
+  "calculation_timestamp": "2026-09-20T12:00:00Z",
+  "provider_settings_verified": true,
+  "source_record_id": "synthetic-001"
+}
+```
 
-Backlog → scoped task → implementation branch → automated tests and evidence → independent review → merge candidate → human release approval.
+Save it as `input.synthetic.json`, then run:
 
-Failures block dependent work and create tracked defects. Tests should run on changes; broader regression and audit checks should run before release. Never represent an unrun test as passing.
+```bash
+python cli.py --file input.synthetic.json
+```
 
-## Repository organization (planned)
+A valid schema is **not** proof that the provider values are accurate. The `--save PATH` option explicitly persists the resulting JSON to the path you specify; use a local gitignored location and never commit real birth data or reports. Persistence is off unless `--save` is supplied.
 
-- `docs/` — product requirements, architecture, decisions, and task register
-- `src/` — application and calculation code (to be added after artifact audit)
-- `tests/` — automated and offline validation tests
-- `data/` — non-sensitive fixtures only; never commit personal birth charts or secrets
-- `reports/` — validation and audit evidence
+## V1-alpha acceptance boundary
 
-## Immediate next steps
+V1-alpha is intentionally limited to a local CLI that validates input and returns a structured status. It must not calculate planetary longitudes, Dasha, transits, or career advice. See [`V1_ACCEPTANCE.md`](V1_ACCEPTANCE.md) for the acceptance checklist and evidence requirements.
 
-1. Inventory and inspect the existing ZIP artifacts.
-2. Recover and verify the original task register before marking tasks complete.
-3. Establish the canonical engine and validator interfaces.
-4. Add reproducible setup, tests, and CI.
-5. Integrate the validated core in small, reviewable changes.
+## Intended eventual product (not implemented/certified)
+
+- User-controlled birth-data handling and provenance.
+- Validated chart positions, Ascendant, Nakshatra, Vimshottari Dasha and relevant transits.
+- Explicit, auditable career rules and uncertainty.
+- A career-focused 12-month outlook with Favorable, Mixed, and Challenging periods, without numeric scores.
+
+Astrology interpretations are decision-support content, not guarantees. Users make their own career decisions.
 
 ## Privacy and security
 
-Do not commit credentials, API keys, personal birth details, private reports, or real user data. Use synthetic fixtures for tests. Document any external data provider and its licensing/limitations before integration.
+Do not commit credentials, API keys, personal birth details, private reports, or real user data. Use synthetic fixtures. Review provider licensing and limitations before integration. Human approval is required before any release.
