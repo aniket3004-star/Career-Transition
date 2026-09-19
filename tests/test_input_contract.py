@@ -45,6 +45,12 @@ class InputContractTests(unittest.TestCase):
         result = validate_birth_input(payload)
         self.assertFalse(result.valid)
 
+    def test_rejects_numeric_timezone_offset(self):
+        payload = dict(VALID, timezone="+05:30")
+        result = validate_birth_input(payload)
+        self.assertFalse(result.valid)
+        self.assertTrue(any("IANA timezone" in error for error in result.errors))
+
     def test_rejects_out_of_range_coordinates(self):
         payload = dict(VALID, latitude=91)
         result = validate_birth_input(payload)
