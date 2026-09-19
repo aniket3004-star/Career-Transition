@@ -10,15 +10,32 @@ from typing import Any
 from src.validation.input_contract import validate_birth_input
 
 
+def _error_output(message: str) -> dict[str, Any]:
+    return {
+        "schema_valid": False,
+        "provenance_complete": False,
+        "calculation_reproduced": False,
+        "accuracy_verified": False,
+        "career_rules_eligible": False,
+        "calculation_layer": "not_certified",
+        "evidence_label": "quarantined",
+        "errors": [message],
+        "warnings": [],
+        "career_outlook": None,
+        "message": "V1-alpha validates input only. No planetary positions, dashas, transits, or career advice.",
+    }
+
+
 def _load_payload(args: argparse.Namespace) -> dict[str, Any]:
-    if args.json:
-        payload = json.loads(args.json)
-    elif args.file:
-        payload = json.loads(Path(args.file).read_text(encoding="utf-8"))
-    else:
-        raise SystemExit("Provide --json or --file")
+    try:
+        raw = args.json if args.json is not None else Path(args.file).read_text(encoding="utf-8")
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        raise ValueError("Input is not valid JSON.") from None
+    except OSError:
+        raise ValueError("Input file could not be read.") from None
     if not isinstance(payload, dict):
-        raise SystemExit("Input must be a JSON object")
+        raise ValueError("Input must be a JSON object.")
     return payload
 
 
@@ -26,32 +43,44 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Career Transition V1-alpha input validator. Does not calculate astrology."
     )
-    parser.add_argument("--json", help="Inline JSON envelope")
-    parser.add_argument("--file", help="Path to JSON envelope")
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--json", help="Inline JSON envelope")
+    source.add_argument("--file", help="Path to JSON envelope")
     parser.add_argument("--save", help="Opt-in persist path. Off by default.")
     args = parser.parse_args(argv)
 
-    payload = _load_payload(args)
-    result = validate_birth_input(payload)
-    output = {
-        "schema_valid": result.valid,
-        "provenance_complete": result.valid and not result.warnings,
-        "calculation_reproduced": False,
-        "accuracy_verified": False,
-        "career_rules_eligible": False,
-        "calculation_layer": "not_certified",
-        "evidence_label": result.evidence_label,
-        "errors": list(result.errors),
-        "warnings": list(result.warnings),
-        "career_outlook": None,
-        "message": "V1-alpha validates input only. No planetary positions, dashas, transits, or career advice.",
-    }
-    print(json.dumps(output, indent=2))
+    try:
+        payload = _load_payload(args)
+        result = validate_birth_input(payload)
+        output = {
+            "schema_valid": result.valid,
+            "provenance_complete": result.valid and not result.warnings,
+            "calculation_reproduced": False,
+            "accuracy_verified": False,
+            "career_rules_eligible": False,
+            "calculation_layer": "not_certified",
+            "evidence_label": result.evidence_label,
+            "errors": list(result.errors),
+            "warnings": list(result.warnings),
+            "career_outlook": None,
+            "message": "V1-alpha validates input only. No planetary positions, dashas, transits, or career advice.",
+        }
+        exit_code = 0 if result.valid else 1
+    except ValueError as exc:
+        output = _error_output(str(exc))
+        exit_code = 2
+
+    rendered = json.dumps(output, indent=2)
     if args.save:
-        path = Path(args.save)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
-    return 0 if result.valid else 1
+        try:
+            path = Path(args.save)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(rendered + "\n", encoding="utf-8")
+        except OSError:
+            print(json.dumps(_error_output("Output file could not be written."), indent=2))
+            return 2
+    print(rendered)
+    return exit_code
 
 
 if __name__ == "__main__":
