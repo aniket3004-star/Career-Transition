@@ -13,6 +13,8 @@ import re
 from typing import Any, Mapping
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from src.validation.local_datetime import resolve_local_datetime
+
 
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _TIME_RE = re.compile(r"^\d{2}:\d{2}(?::\d{2})?$")
@@ -55,7 +57,9 @@ def validate_birth_input(payload: Mapping[str, Any]) -> ValidationResult:
     Required keys: birth_date (strict YYYY-MM-DD), birth_time (HH:MM[:SS]),
     timezone (IANA zone), latitude, longitude, provider, provider_version,
     ayanamsha, zodiac, house_system, ephemeris, and calculation_timestamp.
-    No defaults are silently supplied.
+    No defaults are silently supplied. Valid date/time/timezone combinations
+    are also checked for DST gaps and repeated wall-clock times; neither is
+    silently resolved.
     """
     errors: list[str] = []
     warnings: list[str] = []
@@ -70,18 +74,31 @@ def validate_birth_input(payload: Mapping[str, Any]) -> ValidationResult:
         if not _nonblank(payload.get(key)):
             errors.append(f"{key} must be explicitly supplied as nonblank text")
 
-    if not _valid_strict_date(payload.get("birth_date")):
+    birth_date_valid = _valid_strict_date(payload.get("birth_date"))
+    birth_time_valid = _valid_local_time(payload.get("birth_time"))
+    if not birth_date_valid:
         errors.append("birth_date must be a valid YYYY-MM-DD date")
 
-    if not _valid_local_time(payload.get("birth_time")):
+    if not birth_time_valid:
         errors.append("birth_time must be a valid local HH:MM or HH:MM:SS time")
 
     tz = payload.get("timezone")
+    timezone_valid = False
     if _nonblank(tz):
         try:
             ZoneInfo(tz)
+            timezone_valid = True
         except (ZoneInfoNotFoundError, ValueError, TypeError):
             errors.append("timezone must be a recognized IANA timezone identifier")
+
+    if birth_date_valid and birth_time_valid and timezone_valid:
+        local_result = resolve_local_datetime(payload["birth_date"], payload["birth_time"], tz)
+        if local_result.status == "NONEXISTENT":
+            errors.append("birth_date/birth_time is nonexistent in the supplied timezone")
+        elif local_result.status == "AMBIGUOUS":
+            errors.append("birth_date/birth_time is ambiguous in the supplied timezone; explicit fold/offset is required")
+        elif local_result.status != "VALID":
+            errors.append("birth_date/birth_time could not be resolved in the supplied timezone")
 
     for key, low, high in (("latitude", -90.0, 90.0), ("longitude", -180.0, 180.0)):
         value = payload.get(key)
