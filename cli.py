@@ -10,6 +10,9 @@ from typing import Any
 from src.validation.input_contract import validate_birth_input
 
 
+_ERROR_MESSAGE = "V1-alpha validates input only. No planetary positions, dashas, transits, or career advice."
+
+
 def _error_output(message: str) -> dict[str, Any]:
     return {
         "schema_valid": False,
@@ -22,7 +25,7 @@ def _error_output(message: str) -> dict[str, Any]:
         "errors": [message],
         "warnings": [],
         "career_outlook": None,
-        "message": "V1-alpha validates input only. No planetary positions, dashas, transits, or career advice.",
+        "message": _ERROR_MESSAGE,
     }
 
 
@@ -39,6 +42,18 @@ def _load_payload(args: argparse.Namespace) -> dict[str, Any]:
     return payload
 
 
+def _save_output(rendered: str, requested_path: str) -> None:
+    path = Path(requested_path)
+    output_root = Path("outputs").resolve()
+    resolved = path.resolve()
+    try:
+        resolved.relative_to(output_root)
+    except ValueError:
+        raise ValueError("--save must target the gitignored outputs/ directory.") from None
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    resolved.write_text(rendered + "\n", encoding="utf-8")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Career Transition V1-alpha input validator. Does not calculate astrology."
@@ -46,7 +61,7 @@ def main(argv: list[str] | None = None) -> int:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--json", help="Inline JSON envelope")
     source.add_argument("--file", help="Path to JSON envelope")
-    parser.add_argument("--save", help="Opt-in persist path. Off by default.")
+    parser.add_argument("--save", help="Opt-in persistence under the gitignored outputs/ directory.")
     args = parser.parse_args(argv)
 
     try:
@@ -63,7 +78,7 @@ def main(argv: list[str] | None = None) -> int:
             "errors": list(result.errors),
             "warnings": list(result.warnings),
             "career_outlook": None,
-            "message": "V1-alpha validates input only. No planetary positions, dashas, transits, or career advice.",
+            "message": _ERROR_MESSAGE,
         }
         exit_code = 0 if result.valid else 1
     except ValueError as exc:
@@ -73,12 +88,11 @@ def main(argv: list[str] | None = None) -> int:
     rendered = json.dumps(output, indent=2)
     if args.save:
         try:
-            path = Path(args.save)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(rendered + "\n", encoding="utf-8")
-        except OSError:
-            print(json.dumps(_error_output("Output file could not be written."), indent=2))
-            return 2
+            _save_output(rendered, args.save)
+        except (OSError, ValueError) as exc:
+            output = _error_output(str(exc))
+            rendered = json.dumps(output, indent=2)
+            exit_code = 2
     print(rendered)
     return exit_code
 
