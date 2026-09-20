@@ -5,11 +5,11 @@ from src.validation.input_contract import validate_birth_input
 
 
 VALID = {
-    "birth_date": "1987-03-09",
-    "birth_time": "10:17",
+    "birth_date": "2000-01-15",
+    "birth_time": "12:00",
     "timezone": "Asia/Kolkata",
-    "latitude": 20.4625,
-    "longitude": 85.8828,
+    "latitude": 20.0,
+    "longitude": 85.0,
     "provider": "test-provider",
     "provider_version": "1.0",
     "ayanamsha": "Lahiri",
@@ -74,12 +74,12 @@ class InputContractTests(unittest.TestCase):
         self.assertFalse(result.valid)
 
     def test_rejects_non_strict_birth_date_format(self):
-        payload = dict(VALID, birth_date="1987-3-9")
+        payload = dict(VALID, birth_date="2000-1-15")
         result = validate_birth_input(payload)
         self.assertFalse(result.valid)
 
     def test_rejects_invalid_birth_date(self):
-        payload = dict(VALID, birth_date="1987-02-30")
+        payload = dict(VALID, birth_date="2000-02-30")
         result = validate_birth_input(payload)
         self.assertFalse(result.valid)
 
