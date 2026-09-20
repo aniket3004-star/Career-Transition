@@ -8,9 +8,10 @@ from pathlib import Path
 from cli import main
 
 
+# Synthetic fixture only; never use real birth details in repository tests.
 VALID = {
-    "birth_date": "1987-03-09", "birth_time": "10:17", "timezone": "Asia/Kolkata",
-    "latitude": 20.4625, "longitude": 85.8828, "provider": "test-provider",
+    "birth_date": "1990-06-15", "birth_time": "14:30", "timezone": "Asia/Kolkata",
+    "latitude": 12.9716, "longitude": 77.5946, "provider": "test-provider",
     "provider_version": "1.0", "ayanamsha": "Lahiri", "zodiac": "sidereal",
     "house_system": "Whole Sign", "ephemeris": "Swiss Ephemeris (declared)",
     "calculation_timestamp": "2026-09-19T12:00:00Z", "provider_settings_verified": True,
