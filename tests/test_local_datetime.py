@@ -6,7 +6,7 @@ from src.validation.local_datetime import resolve_local_datetime
 
 class LocalDateTimeTests(unittest.TestCase):
     def test_ordinary_india_time_is_single_instant(self):
-        result = resolve_local_datetime("1987-03-09", "10:17", "Asia/Kolkata")
+        result = resolve_local_datetime("2000-01-15", "12:00", "Asia/Kolkata")
         self.assertEqual(result.status, "VALID")
         self.assertEqual(len(result.candidates_utc), 1)
 
