@@ -19,20 +19,18 @@ class CliTests(unittest.TestCase):
         payload = {
             "birth_date": "1987-03-09",
             "birth_time": "10:17:00",
-            "birth_timezone": "Asia/Kolkata",
+            "timezone": "Asia/Kolkata",
             "latitude": 20.4625,
             "longitude": 85.883,
-            "source": {
-                "provider": "test-provider",
-                "version": "1",
-                "ayanamsha": "Lahiri",
-                "zodiac": "sidereal",
-                "house_system": "whole_sign",
-                "ephemeris": "test-ephemeris",
-                "timestamp": "2026-09-19T10:00:00+00:00",
-                "provider_settings_verified": True,
-                "source_record_id": "synthetic-test-record",
-            },
+            "provider": "test-provider",
+            "provider_version": "1",
+            "ayanamsha": "Lahiri",
+            "zodiac": "sidereal",
+            "house_system": "whole_sign",
+            "ephemeris": "test-ephemeris",
+            "calculation_timestamp": "2026-09-19T10:00:00+00:00",
+            "provider_settings_verified": True,
+            "source_record_id": "synthetic-test-record",
         }
         code, output = self._run("--json", json.dumps(payload))
         self.assertEqual(code, 0)
