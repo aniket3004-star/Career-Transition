@@ -31,6 +31,7 @@ class CliTests(unittest.TestCase):
                 "ephemeris": "test-ephemeris",
                 "timestamp": "2026-09-19T10:00:00+00:00",
                 "provider_settings_verified": True,
+                "source_record_id": "synthetic-test-record",
             },
         }
         code, output = self._run("--json", json.dumps(payload))
