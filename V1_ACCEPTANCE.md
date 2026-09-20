@@ -17,14 +17,14 @@ This is intentional. The charter forbids unvalidated astrology driving user-faci
 ## Checklist
 
 ### A. Repository hygiene
-- [ ] `requirements.txt` or `pyproject.toml` exists and pins test deps
+- [ ] `requirements.txt` or `pyproject.toml` documents the test/runtime dependency policy and pins any third-party test dependencies actually used. If tests use only the Python standard library, explicitly state that no third-party test dependency needs pinning.
 - [ ] `README.md` has exact local run commands
 - [ ] `.gitignore` excludes secrets, venv, real birth data, ZIP dumps
 - [ ] No personal birth charts in git
 
 ### B. Input contract (already started)
 - [ ] `src/validation/input_contract.py` rejects missing/malformed date, time, coords, timezone
-- [ ] Numeric timezone offset alone is rejected; IANA `timezone_id` required
+- [ ] Numeric timezone offset alone is rejected; an IANA timezone identifier is required in the `timezone` field (the implementation's canonical key; do not silently accept numeric offsets)
 - [ ] Implicit ayanamsha/zodiac/house/node defaults cannot set `accuracy_verified` or `career_rules_eligible`
 - [ ] Status flags cannot skip prerequisites (`career_rules_eligible` stays false in V1-alpha)
 - [ ] `tests/test_input_contract.py` covers happy path + fail-closed cases
@@ -58,4 +58,4 @@ Do not implement these until a human opens V2:
 - Recovering missing historical ZIPs (user must supply them)
 
 ## How to check a box
-Replace `- [ ]` with `- [x]` and add a one-line evidence note under the item.
+Replace `- [ ]` with `- [x]` and add a one-line evidence note under the item. Do not mark a box complete based only on a claim in the status document; inspect the cited file/test/CI evidence first.
