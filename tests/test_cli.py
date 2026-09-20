@@ -17,17 +17,17 @@ class CliTests(unittest.TestCase):
 
     def test_valid_json_returns_schema_only_result(self):
         payload = {
-            "birth_date": "1987-03-09",
-            "birth_time": "10:17:00",
+            "birth_date": "2000-01-15",
+            "birth_time": "12:00:00",
             "timezone": "Asia/Kolkata",
-            "latitude": 20.4625,
-            "longitude": 85.883,
-            "provider": "test-provider",
+            "latitude": 20.0,
+            "longitude": 85.0,
+            "provider": "synthetic-fixture",
             "provider_version": "1",
             "ayanamsha": "Lahiri",
             "zodiac": "sidereal",
             "house_system": "whole_sign",
-            "ephemeris": "test-ephemeris",
+            "ephemeris": "synthetic-test-ephemeris",
             "calculation_timestamp": "2026-09-19T10:00:00+00:00",
             "provider_settings_verified": True,
             "source_record_id": "synthetic-test-record",
