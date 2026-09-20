@@ -17,35 +17,53 @@ This is intentional. The charter forbids unvalidated astrology driving user-faci
 ## Checklist
 
 ### A. Repository hygiene
-- [ ] `requirements.txt` or `pyproject.toml` documents the test/runtime dependency policy and pins any third-party test dependencies actually used. If tests use only the Python standard library, explicitly state that no third-party test dependency needs pinning.
-- [ ] `README.md` has exact local run commands
-- [ ] `.gitignore` excludes secrets, venv, real birth data, ZIP dumps
+- [x] `requirements.txt` or `pyproject.toml` documents the test/runtime dependency policy and pins any third-party test dependencies actually used. If tests use only the Python standard library, explicitly state that no third-party test dependency needs pinning.
+  Evidence: `pyproject.toml` declares Python >=3.11, zero runtime dependencies, and `test-dependencies = "stdlib-only"`.
+- [x] `README.md` has exact local run commands
+  Evidence: `README.md` documents `python cli.py --help`, unittest discovery, and `python -m unittest -v test_cli`.
+- [x] `.gitignore` excludes secrets, venv, real birth data, ZIP dumps
+  Evidence: `.gitignore` excludes `.env*`, key/certificate files, birth/private/local data, outputs, birth/chart JSON, ZIP and log dumps.
 - [ ] No personal birth charts in git
 
 ### B. Input contract (already started)
-- [ ] `src/validation/input_contract.py` rejects missing/malformed date, time, coords, timezone
-- [ ] Numeric timezone offset alone is rejected; an IANA timezone identifier is required in the `timezone` field (the implementation's canonical key; do not silently accept numeric offsets)
-- [ ] Implicit ayanamsha/zodiac/house/node defaults cannot set `accuracy_verified` or `career_rules_eligible`
-- [ ] Status flags cannot skip prerequisites (`career_rules_eligible` stays false in V1-alpha)
-- [ ] `tests/test_input_contract.py` covers happy path + fail-closed cases
-- [ ] GitHub Actions workflow on `main` and PRs runs those tests
+- [x] `src/validation/input_contract.py` rejects missing/malformed date, time, coords, timezone
+  Evidence: `tests/test_input_contract.py` covers invalid dates/times, unknown timezone, coordinate range/type/finite checks, and DST-local-time failures.
+- [x] Numeric timezone offset alone is rejected; an IANA timezone identifier is required in the `timezone` field (the implementation's canonical key; do not silently accept numeric offsets)
+  Evidence: `tests/test_input_contract.py::test_rejects_numeric_timezone_offset`.
+- [x] Implicit ayanamsha/zodiac/house/node defaults cannot set `accuracy_verified` or `career_rules_eligible`
+  Evidence: `tests/test_input_contract.py::test_rejects_missing_configuration_instead_of_defaulting`; `cli.py` hard-codes `accuracy_verified=false` and `career_rules_eligible=false`.
+- [x] Status flags cannot skip prerequisites (`career_rules_eligible` stays false in V1-alpha)
+  Evidence: `cli.py` always emits `career_rules_eligible: false` and `career_outlook: null`.
+- [x] `tests/test_input_contract.py` covers happy path + fail-closed cases
+  Evidence: `tests/test_input_contract.py` contains the complete explicit-metadata happy path plus rejection cases.
+- [x] GitHub Actions workflow on `main` and PRs runs those tests
+  Evidence: `.github/workflows/python-tests.yml` triggers on pushes and pull requests to `main` and runs unittest discovery plus `test_cli`.
 
 ### C. App shell
-- [ ] `src/` has a CLI entrypoint, e.g. `python -m src.cli` or `python src/cli.py`
-- [ ] CLI accepts JSON or flags for the input envelope
-- [ ] CLI writes JSON to stdout and a non-zero exit code on reject
-- [ ] CLI never prints career advice or planet longitudes in V1-alpha
+- [x] `src/` has a CLI entrypoint, e.g. `python -m src.cli` or `python src/cli.py`
+  Evidence: `src/cli.py` exists and `tests/test_cli.py` contains the src-entrypoint regression coverage documented in `PROJECT_STATUS.md`.
+- [x] CLI accepts JSON or flags for the input envelope
+  Evidence: `cli.py` accepts mutually exclusive `--json` and `--file` sources.
+- [x] CLI writes JSON to stdout and a non-zero exit code on reject
+  Evidence: `cli.py` renders structured JSON and returns exit code 1 for validation rejection and 2 for input/IO errors.
+- [x] CLI never prints career advice or planet longitudes in V1-alpha
+  Evidence: `cli.py` uses an explicit input-only message and does not calculate or emit planetary positions, Dasha, transits, or career advice.
 - [ ] Optional: one-page local form that posts to the same validator
 
 ### D. Privacy
-- [ ] Default is in-memory only
-- [ ] Persistence is off unless `--save` is explicitly passed
-- [ ] Saved files go to a gitignored directory
-- [ ] Logs do not include raw birth data in issue titles or public docs
+- [x] Default is in-memory only
+  Evidence: `cli.py` only calls `_save_output` when `--save` is explicitly supplied.
+- [x] Persistence is off unless `--save` is explicitly passed
+  Evidence: `cli.py` gates persistence on `args.save`; `tests/test_cli.py` covers opt-in saving.
+- [x] Saved files go to a gitignored directory
+  Evidence: `_save_output` rejects paths outside `outputs/`; `.gitignore` excludes `outputs/`.
+- [x] Logs do not include raw birth data in issue titles or public docs
+  Evidence: repository workflow/status documentation uses synthetic examples and does not include raw birth-data logging; public fixture guidance explicitly prohibits real birth data.
 
 ### E. Evidence
 - [ ] `PROJECT_STATUS.md` lists the commit SHA that satisfies this checklist
-- [ ] `V1_HANDOFF.md` exists with run commands, limitations, and V2 next gates
+- [x] `V1_HANDOFF.md` exists with run commands, limitations, and V2 next gates
+  Evidence: `V1_HANDOFF.md` contains local run commands, alpha boundaries, privacy cautions, and next gates.
 - [ ] CI is green on that commit
 
 ## Explicitly out of V1-alpha
