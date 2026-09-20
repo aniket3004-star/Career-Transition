@@ -23,7 +23,8 @@ This is intentional. The charter forbids unvalidated astrology driving user-faci
   Evidence: `README.md` documents `python cli.py --help`, unittest discovery, and `python -m unittest -v test_cli`.
 - [x] `.gitignore` excludes secrets, venv, real birth data, ZIP dumps
   Evidence: `.gitignore` excludes `.env*`, key/certificate files, birth/private/local data, outputs, birth/chart JSON, ZIP and log dumps.
-- [ ] No personal birth charts in git
+- [x] No personal birth charts in git
+  Evidence: `docs/PUBLIC_BIRTH_DATA_AUDIT.md` records the complete tracked-tree review and repository-content searches for known personal birth markers; no matches were returned. The root CLI fixture is synthetic.
 
 ### B. Input contract (already started)
 - [x] `src/validation/input_contract.py` rejects missing/malformed date, time, coords, timezone
