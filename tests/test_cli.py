@@ -1,5 +1,7 @@
 import io
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -65,6 +67,16 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertFalse(output["schema_valid"])
         self.assertIn("outputs/", output["errors"][0])
+
+    def test_src_cli_entrypoint_delegates_to_same_cli(self):
+        result = subprocess.run(
+            [sys.executable, "src/cli.py", "--help"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("Career Transition V1-alpha input validator", result.stdout)
 
 
 if __name__ == "__main__":
