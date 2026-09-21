@@ -1,8 +1,8 @@
 # V1-alpha acceptance (agent stop condition)
 
-Status: **NOT DONE**
+Status: **DONE**
 
-An agent may mark V1-alpha done only when every item below has evidence in the repo (test name, CI run, or file path). Unchecked items mean keep working. Do not start V2.
+V1-alpha acceptance evidence is complete. The acceptance-satisfying commit is `5cc14f40f1c71f9772c3c8163a83a903c9401bdd`; GitHub Actions run #51 (`35547730899`) completed successfully for that exact commit on 2026-09-21. Do not start V2 until a human explicitly opens V2.
 
 ## Product scope for V1-alpha
 A local CLI (and optional tiny local web form) that:
@@ -26,10 +26,10 @@ This is intentional. The charter forbids unvalidated astrology driving user-faci
 - [x] No personal birth charts in git
   Evidence: `docs/PUBLIC_BIRTH_DATA_AUDIT.md` records the complete tracked-tree review and repository-content searches for known personal birth markers; no matches were returned. The root CLI fixture is synthetic.
 
-### B. Input contract (already started)
+### B. Input contract
 - [x] `src/validation/input_contract.py` rejects missing/malformed date, time, coords, timezone
   Evidence: `tests/test_input_contract.py` covers invalid dates/times, unknown timezone, coordinate range/type/finite checks, and DST-local-time failures.
-- [x] Numeric timezone offset alone is rejected; an IANA timezone identifier is required in the `timezone` field (the implementation's canonical key; do not silently accept numeric offsets)
+- [x] Numeric timezone offset alone is rejected; an IANA timezone identifier is required in the `timezone` field
   Evidence: `tests/test_input_contract.py::test_rejects_numeric_timezone_offset`.
 - [x] Implicit ayanamsha/zodiac/house/node defaults cannot set `accuracy_verified` or `career_rules_eligible`
   Evidence: `tests/test_input_contract.py::test_rejects_missing_configuration_instead_of_defaulting`; `cli.py` hard-codes `accuracy_verified=false` and `career_rules_eligible=false`.
@@ -42,7 +42,7 @@ This is intentional. The charter forbids unvalidated astrology driving user-faci
 
 ### C. App shell
 - [x] `src/` has a CLI entrypoint, e.g. `python -m src.cli` or `python src/cli.py`
-  Evidence: `src/cli.py` exists and `tests/test_cli.py` contains the src-entrypoint regression coverage documented in `PROJECT_STATUS.md`.
+  Evidence: `src/cli.py` exists and `tests/test_cli.py` contains the src-entrypoint regression coverage.
 - [x] CLI accepts JSON or flags for the input envelope
   Evidence: `cli.py` accepts mutually exclusive `--json` and `--file` sources.
 - [x] CLI writes JSON to stdout and a non-zero exit code on reject
@@ -50,6 +50,7 @@ This is intentional. The charter forbids unvalidated astrology driving user-faci
 - [x] CLI never prints career advice or planet longitudes in V1-alpha
   Evidence: `cli.py` uses an explicit input-only message and does not calculate or emit planetary positions, Dasha, transits, or career advice.
 - [ ] Optional: one-page local form that posts to the same validator
+  Not required for V1-alpha acceptance.
 
 ### D. Privacy
 - [x] Default is in-memory only
@@ -62,10 +63,12 @@ This is intentional. The charter forbids unvalidated astrology driving user-faci
   Evidence: repository workflow/status documentation uses synthetic examples and does not include raw birth-data logging; public fixture guidance explicitly prohibits real birth data.
 
 ### E. Evidence
-- [ ] `PROJECT_STATUS.md` lists the commit SHA that satisfies this checklist
+- [x] `PROJECT_STATUS.md` lists the commit SHA that satisfies this checklist
+  Evidence: `PROJECT_STATUS.md` records `5cc14f40f1c71f9772c3c8163a83a903c9401bdd` as the acceptance-satisfying commit.
 - [x] `V1_HANDOFF.md` exists with run commands, limitations, and V2 next gates
   Evidence: `V1_HANDOFF.md` contains local run commands, alpha boundaries, privacy cautions, and next gates.
-- [ ] CI is green on that commit
+- [x] CI is green on that commit
+  Evidence: GitHub Actions run #51 (`35547730899`) for commit `5cc14f40f1c71f9772c3c8163a83a903c9401bdd` completed successfully on 2026-09-21.
 
 ## Explicitly out of V1-alpha
 Do not implement these until a human opens V2:
