@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from src.astrology.dasha import antardasha_timeline, vimshottari_timeline
 from src.astrology.dasha_reference import (
     DashaReferenceCase,
+    proportional_boundary_dates,
     validate_dasha_reference_cases,
 )
 from src.astrology.reference_snapshot import ReferenceSnapshot
@@ -131,6 +132,25 @@ class DashaReferenceTests(unittest.TestCase):
         source_moon_end = datetime(2026, 12, 2, tzinfo=timezone.utc)
         difference = abs((active.end - source_moon_end).total_seconds())
         self.assertLessEqual(difference, 5 * 86400)
+
+    def test_dharmayana_saturn_antardasha_dates_match_proportional_source_interval(self):
+        start = datetime(2014, 5, 30, tzinfo=timezone.utc)
+        end = datetime(2033, 5, 30, tzinfo=timezone.utc)
+        lords = ("Saturn", "Mercury", "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter")
+        expected = (
+            datetime(2017, 6, 2, tzinfo=timezone.utc),
+            datetime(2020, 2, 11, tzinfo=timezone.utc),
+            datetime(2021, 3, 20, tzinfo=timezone.utc),
+            datetime(2024, 5, 20, tzinfo=timezone.utc),
+            datetime(2025, 5, 2, tzinfo=timezone.utc),
+            datetime(2026, 12, 2, tzinfo=timezone.utc),
+            datetime(2028, 1, 11, tzinfo=timezone.utc),
+            datetime(2030, 11, 17, tzinfo=timezone.utc),
+            datetime(2033, 5, 30, tzinfo=timezone.utc),
+        )
+        actual = proportional_boundary_dates(start, end, lords)
+        for observed, source in zip(actual, expected):
+            self.assertLessEqual(abs((observed - source).total_seconds()), 86400)
 
     def test_missing_moon_is_rejected(self):
         ref = snapshot("missing-moon", 0.0)
