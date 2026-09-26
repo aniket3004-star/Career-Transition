@@ -36,14 +36,13 @@ python cli.py --file input.synthetic.json --save outputs/result.json
 - Do not commit real birth details, reports, credentials, or API keys. Use synthetic fixtures.
 - Do not use this prototype to make career decisions.
 
-## Next gates before calling V1-alpha accepted
+## Next gates for any later calculation phase
 
-1. Audit every unchecked item in `V1_ACCEPTANCE.md` against the current repository and record evidence beside each checked item.
-2. Verify input-contract edge cases, privacy behavior, CLI exit/output behavior, and CI on the exact candidate commit.
-3. Complete independent calculation validation and provider/licensing review only after a human explicitly opens the later calculation phase; these are outside V1-alpha.
-4. Keep Dasha, transits, career rules, forecasts, deployment, payments, and recovery of missing historical ZIPs out of this alpha scope.
-5. Update `PROJECT_STATUS.md` with the exact acceptance commit and green CI evidence only when the checklist is genuinely complete.
+1. Treat `V1_ACCEPTANCE.md` and `PROJECT_STATUS.md` as the authoritative record of the already-completed V1-alpha acceptance.
+2. Before any calculation phase, require a human to explicitly open V2 and independently validate the calculation/provider layer.
+3. Keep Dasha, transits, career rules, forecasts, deployment, payments, and recovery of missing historical ZIPs outside V1-alpha until that authorization.
+4. Preserve the fail-closed input/provenance boundary and do not represent the alpha as an astrology or career-forecasting product.
 
 ## Acceptance status
 
-This handoff does not certify acceptance. Consult `V1_ACCEPTANCE.md` and `PROJECT_STATUS.md` for the current evidence and outstanding items.
+V1-alpha acceptance evidence is complete as recorded in `V1_ACCEPTANCE.md` and `PROJECT_STATUS.md`. The calculation layer remains uncertified and V2 remains unopened.
