@@ -8,7 +8,7 @@ from datetime import datetime
 import math
 from typing import Tuple
 
-from .dasha import DashaPeriod, vimshottari_timeline
+from .dasha import DashaPeriod, vimshottari_timeline, DAYS_PER_YEAR
 from .reference_snapshot import ReferenceSnapshot
 
 
@@ -20,6 +20,8 @@ class DashaReferenceCase:
     birth_datetime: datetime
     reference: ReferenceSnapshot
     expected_starting_lord: str
+    expected_opening_balance_years: float | None = None
+    opening_balance_tolerance_years: float = 1e-6
 
     def validate(self) -> None:
         if not self.case_id.strip():
@@ -36,6 +38,17 @@ class DashaReferenceCase:
             "Rahu", "Jupiter", "Saturn", "Mercury",
         }:
             raise ValueError("expected_starting_lord is not a Vimshottari lord")
+        if self.expected_opening_balance_years is not None:
+            if (isinstance(self.expected_opening_balance_years, bool)
+                    or not isinstance(self.expected_opening_balance_years, (int, float))
+                    or not math.isfinite(self.expected_opening_balance_years)
+                    or self.expected_opening_balance_years < 0):
+                raise ValueError("expected_opening_balance_years must be finite and non-negative")
+        if (isinstance(self.opening_balance_tolerance_years, bool)
+                or not isinstance(self.opening_balance_tolerance_years, (int, float))
+                or not math.isfinite(self.opening_balance_tolerance_years)
+                or self.opening_balance_tolerance_years < 0):
+            raise ValueError("opening_balance_tolerance_years must be finite and non-negative")
 
     def assert_matches(self) -> DashaPeriod:
         self.validate()
@@ -50,6 +63,16 @@ class DashaReferenceCase:
                 f"{self.case_id}: expected starting lord "
                 f"{self.expected_starting_lord}, got {period.lord}"
             )
+        if self.expected_opening_balance_years is not None:
+            actual_years = (
+                (period.end - period.start).total_seconds()
+                / (DAYS_PER_YEAR * 86400.0)
+            )
+            if abs(actual_years - self.expected_opening_balance_years) > self.opening_balance_tolerance_years:
+                raise AssertionError(
+                    f"{self.case_id}: expected opening balance "
+                    f"{self.expected_opening_balance_years}, got {actual_years}"
+                )
         return period
 
 
