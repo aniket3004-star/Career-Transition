@@ -60,6 +60,9 @@ class GoldenCase:
     expected_longitudes: dict[str, float]
     tolerance_degrees: float
 
+    def __post_init__(self) -> None:
+        self.validate()
+
     def validate(self) -> None:
         self.metadata.validate()
 
