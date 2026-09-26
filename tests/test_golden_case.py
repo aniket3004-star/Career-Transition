@@ -4,7 +4,7 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.astrology.golden_case import GoldenCaseMetadata, load_golden_case
+from src.astrology.golden_case import CalculationConventions, GoldenCaseMetadata, load_golden_case
 
 
 def case(**overrides):
@@ -67,42 +67,42 @@ class GoldenCaseMetadataTests(unittest.TestCase):
         metadata = case()
         from src.astrology.golden_case import GoldenCase
         golden = GoldenCase(metadata, {"Sun": 10.0}, 0.001)
-        golden.assert_compatible(
+        golden.assert_compatible(CalculationConventions(
             timezone_id="UTC",
             zodiac="sidereal",
             ayanamsha="explicit-convention",
             ephemeris="explicit-ephemeris",
             coordinate_frame="geocentric",
             node_convention="explicit-node-convention",
-        )
+        ))
 
     def test_mismatched_zodiac_is_rejected(self):
         metadata = case()
         from src.astrology.golden_case import GoldenCase
         golden = GoldenCase(metadata, {"Sun": 10.0}, 0.001)
         with self.assertRaises(ValueError):
-            golden.assert_compatible(
+            golden.assert_compatible(CalculationConventions(
                 timezone_id="UTC",
                 zodiac="tropical",
                 ayanamsha="explicit-convention",
                 ephemeris="explicit-ephemeris",
                 coordinate_frame="geocentric",
                 node_convention="explicit-node-convention",
-            )
+            ))
 
     def test_mismatched_ayanamsha_is_rejected(self):
         metadata = case()
         from src.astrology.golden_case import GoldenCase
         golden = GoldenCase(metadata, {"Sun": 10.0}, 0.001)
         with self.assertRaises(ValueError):
-            golden.assert_compatible(
+            golden.assert_compatible(CalculationConventions(
                 timezone_id="UTC",
                 zodiac="sidereal",
                 ayanamsha="different-convention",
                 ephemeris="explicit-ephemeris",
                 coordinate_frame="geocentric",
                 node_convention="explicit-node-convention",
-            )
+            ))
 
 
 class GoldenCaseLoaderTests(unittest.TestCase):
