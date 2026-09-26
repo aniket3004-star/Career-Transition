@@ -29,12 +29,22 @@ class CalculationGateTests(unittest.TestCase):
     def test_schema_only_result_is_allowed(self):
         validate_result_gates(result())
 
-    def test_each_downstream_state_requires_previous_gate(self):
-        for field in ("provenance_complete", "calculation_reproduced",
-                      "accuracy_verified", "career_rules_eligible"):
+    def test_each_downstream_state_after_schema_requires_previous_gate(self):
+        cases = (
+            ("calculation_reproduced", {"provenance_complete": False}),
+            ("accuracy_verified", {"provenance_complete": True, "calculation_reproduced": False}),
+            ("career_rules_eligible", {
+                "provenance_complete": True,
+                "calculation_reproduced": True,
+                "accuracy_verified": False,
+            }),
+        )
+        for field, prerequisites in cases:
             with self.subTest(field=field):
+                values = dict(prerequisites)
+                values[field] = True
                 with self.assertRaises(ValueError):
-                    validate_result_gates(result(**{field: True}))
+                    validate_result_gates(result(**values))
 
     def test_full_chain_is_allowed(self):
         validate_result_gates(result(
