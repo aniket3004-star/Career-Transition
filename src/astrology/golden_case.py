@@ -55,8 +55,11 @@ class GoldenCase:
 
     def validate(self) -> None:
         self.metadata.validate()
-        if not math.isfinite(self.tolerance_degrees) or self.tolerance_degrees < 0:
-            raise ValueError("tolerance_degrees must be finite and non-negative")
+        if (isinstance(self.tolerance_degrees, bool)
+                or not isinstance(self.tolerance_degrees, (int, float))
+                or not math.isfinite(self.tolerance_degrees)
+                or self.tolerance_degrees < 0):
+            raise ValueError("tolerance_degrees must be finite and non-negative numeric")
         if not self.expected_longitudes:
             raise ValueError("expected_longitudes must not be empty")
         for body, longitude in self.expected_longitudes.items():
