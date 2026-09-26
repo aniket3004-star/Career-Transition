@@ -26,6 +26,27 @@ class VimshottariTests(unittest.TestCase):
         self.assertEqual(periods[0].lord, "Mercury")
         self.assertEqual(periods[1].lord, "Ketu")
 
+    def test_exact_nakshatra_boundary_switches_starting_lord(self):
+        boundary = 360.0 / 27.0
+        before = vimshottari_timeline(
+            datetime(2000, 1, 1, tzinfo=timezone.utc), boundary - 1e-12, 1
+        )
+        at = vimshottari_timeline(
+            datetime(2000, 1, 1, tzinfo=timezone.utc), boundary, 1
+        )
+        self.assertEqual(before[0].lord, "Ketu")
+        self.assertEqual(at[0].lord, "Venus")
+
+    def test_nakshatra_boundaries_progress_through_lord_cycle(self):
+        boundary = 360.0 / 27.0
+        expected = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+        for index, lord in enumerate(expected):
+            moon = index * boundary
+            periods = vimshottari_timeline(
+                datetime(2000, 1, 1, tzinfo=timezone.utc), moon, 1
+            )
+            self.assertEqual(periods[0].lord, lord)
+
     def test_antardashas_are_ordered_and_cover_mahadasha(self):
         md = vimshottari_timeline(datetime(2000, 1, 1, tzinfo=timezone.utc), 100, 1)[0]
         ads = antardasha_timeline(md)
