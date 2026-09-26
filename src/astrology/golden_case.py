@@ -14,6 +14,17 @@ from typing import Mapping
 from src.astrology.golden import GoldenObservation
 
 
+
+
+@dataclass(frozen=True)
+class CalculationConventions:
+    timezone_id: str
+    zodiac: str
+    ayanamsha: str
+    ephemeris: str
+    coordinate_frame: str
+    node_convention: str
+
 @dataclass(frozen=True)
 class GoldenCaseMetadata:
     case_id: str
@@ -92,12 +103,12 @@ class GoldenCase:
     ) -> None:
         """Reject comparison when calculation conventions differ from the case."""
         actual = {
-            "timezone_id": timezone_id,
-            "zodiac": zodiac,
-            "ayanamsha": ayanamsha,
-            "ephemeris": ephemeris,
-            "coordinate_frame": coordinate_frame,
-            "node_convention": node_convention,
+            "timezone_id": conventions.timezone_id,
+            "zodiac": conventions.zodiac,
+            "ayanamsha": conventions.ayanamsha,
+            "ephemeris": conventions.ephemeris,
+            "coordinate_frame": conventions.coordinate_frame,
+            "node_convention": conventions.node_convention,
         }
         expected = {
             "timezone_id": self.metadata.timezone_id,
