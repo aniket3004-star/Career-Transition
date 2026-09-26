@@ -1,0 +1,4 @@
+# Optional V2 astronomy reference/calculation environment.
+# Keep these out of the base V1 runtime until the provider/reference decision is final.
+astropy>=7,<9
+jplephem>=2,<3
