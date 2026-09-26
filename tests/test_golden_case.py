@@ -63,6 +63,47 @@ class GoldenCaseMetadataTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             case(reference_url="reference-001")
 
+    def test_matching_conventions_are_accepted(self):
+        metadata = case()
+        from src.astrology.golden_case import GoldenCase
+        golden = GoldenCase(metadata, {"Sun": 10.0}, 0.001)
+        golden.assert_compatible(
+            timezone_id="UTC",
+            zodiac="sidereal",
+            ayanamsha="explicit-convention",
+            ephemeris="explicit-ephemeris",
+            coordinate_frame="geocentric",
+            node_convention="explicit-node-convention",
+        )
+
+    def test_mismatched_zodiac_is_rejected(self):
+        metadata = case()
+        from src.astrology.golden_case import GoldenCase
+        golden = GoldenCase(metadata, {"Sun": 10.0}, 0.001)
+        with self.assertRaises(ValueError):
+            golden.assert_compatible(
+                timezone_id="UTC",
+                zodiac="tropical",
+                ayanamsha="explicit-convention",
+                ephemeris="explicit-ephemeris",
+                coordinate_frame="geocentric",
+                node_convention="explicit-node-convention",
+            )
+
+    def test_mismatched_ayanamsha_is_rejected(self):
+        metadata = case()
+        from src.astrology.golden_case import GoldenCase
+        golden = GoldenCase(metadata, {"Sun": 10.0}, 0.001)
+        with self.assertRaises(ValueError):
+            golden.assert_compatible(
+                timezone_id="UTC",
+                zodiac="sidereal",
+                ayanamsha="different-convention",
+                ephemeris="explicit-ephemeris",
+                coordinate_frame="geocentric",
+                node_convention="explicit-node-convention",
+            )
+
 
 class GoldenCaseLoaderTests(unittest.TestCase):
     def write_json(self, data):
