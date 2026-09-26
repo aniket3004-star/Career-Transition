@@ -100,7 +100,17 @@ class GoldenCaseLoaderTests(unittest.TestCase):
             path.unlink()
 
     def test_invalid_tolerance_rejected(self):
-        data = payload(tolerance_degrees=-0.1)
+        for tolerance in (-0.1, None, "0.1", True):
+            data = payload(tolerance_degrees=tolerance)
+            path = self.write_json(data)
+            try:
+                with self.assertRaises(ValueError):
+                    load_golden_case(path)
+            finally:
+                path.unlink()
+
+    def test_expected_longitudes_must_be_object(self):
+        data = payload(expected_longitudes=["Sun", 10.0])
         path = self.write_json(data)
         try:
             with self.assertRaises(ValueError):
