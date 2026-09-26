@@ -1,7 +1,8 @@
 import unittest
 from datetime import datetime, timezone
 
-from src.astrology.golden_sets import compare_longitude_sets
+from src.astrology.golden_sets import compare_golden_case, compare_longitude_sets
+from src.astrology.golden_case import GoldenCase, GoldenCaseMetadata
 
 
 class GoldenSetComparisonTests(unittest.TestCase):
@@ -42,3 +43,33 @@ class GoldenSetComparisonTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_golden_case_supplies_provenance_and_tolerance(self):
+        metadata = GoldenCaseMetadata(
+            "case-bound", "reference-A", "2026.1",
+            "https://example.invalid/reference",
+            datetime(2026, 9, 26, tzinfo=timezone.utc),
+            "UTC", "sidereal", "test-ayanamsha", "test-ephemeris",
+            "geocentric", "test-node",
+        )
+        golden_case = GoldenCase(metadata, {"Sun": 20.0}, 0.001)
+        evidence = compare_golden_case(golden_case, {"Sun": 20.0005},
+                                       datetime(2026, 9, 26, tzinfo=timezone.utc))
+        self.assertEqual(evidence[0].case_id, "case-bound")
+        self.assertEqual(evidence[0].reference_source, "reference-A")
+        self.assertEqual(evidence[0].reference_version, "2026.1")
+        self.assertEqual(evidence[0].tolerance_degrees, 0.001)
+        self.assertTrue(evidence[0].passed)
+
+    def test_golden_case_rejects_body_mismatch(self):
+        metadata = GoldenCaseMetadata(
+            "case-bound", "reference-A", "2026.1",
+            "https://example.invalid/reference",
+            datetime(2026, 9, 26, tzinfo=timezone.utc),
+            "UTC", "sidereal", "test-ayanamsha", "test-ephemeris",
+            "geocentric", "test-node",
+        )
+        golden_case = GoldenCase(metadata, {"Sun": 20.0}, 0.001)
+        with self.assertRaises(ValueError):
+            compare_golden_case(golden_case, {"Moon": 20.0})
