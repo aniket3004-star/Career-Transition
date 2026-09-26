@@ -26,6 +26,9 @@ class GoldenCaseMetadata:
     coordinate_frame: str
     node_convention: str
 
+    def __post_init__(self) -> None:
+        self.validate()
+
     def validate(self) -> None:
         required = {
             "case_id": self.case_id,
@@ -41,6 +44,8 @@ class GoldenCaseMetadata:
         }
         if any(not isinstance(v, str) or not v.strip() for v in required.values()):
             raise ValueError("golden-case metadata contains a missing text field")
+        if not isinstance(self.source_timestamp, datetime):
+            raise ValueError("source_timestamp must be a datetime")
         if self.source_timestamp.tzinfo is None or self.source_timestamp.utcoffset() is None:
             raise ValueError("source_timestamp must be timezone-aware")
         if not self.reference_url.startswith(("https://", "http://")):
