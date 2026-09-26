@@ -1,6 +1,7 @@
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
+from src.astrology.dasha import antardasha_timeline, vimshottari_timeline
 from src.astrology.dasha_reference import (
     DashaReferenceCase,
     validate_dasha_reference_cases,
@@ -22,6 +23,24 @@ def snapshot(case_id, moon):
         coordinate_frame="geocentric-ecliptic",
         node_convention="true",
         longitudes={"Moon": moon},
+        ascendant_longitude=0.0,
+    )
+
+
+def priyanka_dharmayana_snapshot():
+    return ReferenceSnapshot(
+        case_id="priyanka-dalwani-dharmayana-1989-10-20",
+        reference_source="Dharmayana Kundli PDF",
+        reference_version="kundli-pdf-pages-2-4-50-51",
+        reference_url="https://www.dharmayana.in/",
+        calculated_at_utc=datetime(2026, 9, 27, tzinfo=timezone.utc),
+        timezone_id="Asia/Kolkata",
+        zodiac="sidereal",
+        sidereal_mode="Lahiri",
+        ephemeris="source-kundli",
+        coordinate_frame="geocentric-ecliptic",
+        node_convention="true",
+        longitudes={"Moon": 73.61472222222222},
         ascendant_longitude=0.0,
     )
 
@@ -61,6 +80,54 @@ class DashaReferenceTests(unittest.TestCase):
         )
         periods = validate_dasha_reference_cases(cases)
         self.assertEqual([p.lord for p in periods], ["Ketu", "Venus", "Mercury"])
+
+    def test_priyanka_dharmayana_case_matches_dasha_sequence_and_boundaries(self):
+        birth = datetime(1989, 10, 20, 5, 23, tzinfo=timezone(timedelta(hours=5, minutes=30)))
+        reference = priyanka_dharmayana_snapshot()
+        case = DashaReferenceCase(
+            case_id=reference.case_id,
+            birth_datetime=birth,
+            reference=reference,
+            expected_starting_lord="Rahu",
+        )
+        first = case.assert_matches()
+        periods = vimshottari_timeline(birth, reference.longitudes["Moon"], mahadasha_count=3)
+
+        self.assertEqual([period.lord for period in periods], ["Rahu", "Jupiter", "Saturn"])
+
+        # The PDF prints Moon longitude to arc-second precision. Its displayed
+        # Mahadasha transition dates are therefore treated as source observations,
+        # with a five-day comparison tolerance rather than false sub-day precision.
+        source_transition_dates = (
+            datetime(1998, 5, 30, tzinfo=timezone.utc),
+            datetime(2014, 5, 30, tzinfo=timezone.utc),
+            datetime(2033, 5, 30, tzinfo=timezone.utc),
+        )
+        for period, source_date in zip(periods, source_transition_dates):
+            difference = abs((period.end - source_date).total_seconds())
+            self.assertLessEqual(difference, 5 * 86400)
+
+        self.assertEqual(first.lord, "Rahu")
+
+        saturn = periods[2]
+        antardashas = antardasha_timeline(saturn)
+        self.assertEqual(
+            [period.lord for period in antardashas],
+            ["Saturn", "Mercury", "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter"],
+        )
+
+        # The source PDF places Saturn/Sun through 2 Dec 2026, so on the
+        # validation date of 27 Sep 2026 the active Antardasha is Sun.
+        validation_date = datetime(2026, 9, 27, tzinfo=timezone.utc)
+        active = next(
+            period for period in antardashas
+            if period.start <= validation_date < period.end
+        )
+        self.assertEqual(active.lord, "Sun")
+
+        source_sun_to_moon = datetime(2026, 12, 2, tzinfo=timezone.utc)
+        difference = abs((active.end - source_sun_to_moon).total_seconds())
+        self.assertLessEqual(difference, 5 * 86400)
 
     def test_missing_moon_is_rejected(self):
         ref = snapshot("missing-moon", 0.0)
