@@ -11,6 +11,8 @@ from dataclasses import dataclass
 import math
 from typing import Mapping
 
+from src.astrology.astropy_reference import TropicalReferenceResult
+
 
 @dataclass(frozen=True)
 class SiderealConversion:
@@ -53,4 +55,23 @@ def convert_longitudes(
         ayanamsha_degrees=ayanamsha_degrees,
         tropical_longitudes=dict(tropical_longitudes),
         sidereal_longitudes=converted,
+    )
+
+
+def convert_tropical_reference(
+    reference: TropicalReferenceResult,
+    *,
+    ayanamsha_name: str,
+    ayanamsha_degrees: float,
+) -> SiderealConversion:
+    """Convert an explicit tropical reference result without adding defaults.
+
+    The caller remains responsible for sourcing and proving the ayanamsha value.
+    """
+    if not isinstance(reference, TropicalReferenceResult):
+        raise TypeError("reference must be a TropicalReferenceResult")
+    return convert_longitudes(
+        reference.longitudes,
+        ayanamsha_name,
+        ayanamsha_degrees,
     )
