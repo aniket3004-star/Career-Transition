@@ -62,6 +62,40 @@ class GoldenCase:
 
     def validate(self) -> None:
         self.metadata.validate()
+
+    def assert_compatible(
+        self,
+        *,
+        timezone_id: str,
+        zodiac: str,
+        ayanamsha: str,
+        ephemeris: str,
+        coordinate_frame: str,
+        node_convention: str,
+    ) -> None:
+        """Reject comparison when calculation conventions differ from the case."""
+        actual = {
+            "timezone_id": timezone_id,
+            "zodiac": zodiac,
+            "ayanamsha": ayanamsha,
+            "ephemeris": ephemeris,
+            "coordinate_frame": coordinate_frame,
+            "node_convention": node_convention,
+        }
+        expected = {
+            "timezone_id": self.metadata.timezone_id,
+            "zodiac": self.metadata.zodiac,
+            "ayanamsha": self.metadata.ayanamsha,
+            "ephemeris": self.metadata.ephemeris,
+            "coordinate_frame": self.metadata.coordinate_frame,
+            "node_convention": self.metadata.node_convention,
+        }
+        mismatches = [
+            key for key in expected
+            if actual[key] != expected[key]
+        ]
+        if mismatches:
+            raise ValueError(f"golden-case conventions differ: {mismatches}")
         if (isinstance(self.tolerance_degrees, bool)
                 or not isinstance(self.tolerance_degrees, (int, float))
                 or not math.isfinite(self.tolerance_degrees)
