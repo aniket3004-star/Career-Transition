@@ -92,14 +92,7 @@ class GoldenCase:
                 raise ValueError(f"longitude for {body!r} must be finite in [0, 360)")
 
     def assert_compatible(
-        self,
-        *,
-        timezone_id: str,
-        zodiac: str,
-        ayanamsha: str,
-        ephemeris: str,
-        coordinate_frame: str,
-        node_convention: str,
+        self, conventions: CalculationConventions
     ) -> None:
         """Reject comparison when calculation conventions differ from the case."""
         actual = {
