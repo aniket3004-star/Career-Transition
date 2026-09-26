@@ -116,17 +116,17 @@ class DashaReferenceTests(unittest.TestCase):
             ["Saturn", "Mercury", "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter"],
         )
 
-        # The source PDF places Saturn/Sun through 2 Dec 2026, so on the
-        # validation date of 27 Sep 2026 the active Antardasha is Sun.
+        # The source PDF lists Antardasha end dates. Saturn/Moon ends on
+        # 2 Dec 2026, so on 27 Sep 2026 the active Antardasha is Moon.
         validation_date = datetime(2026, 9, 27, tzinfo=timezone.utc)
         active = next(
             period for period in antardashas
             if period.start <= validation_date < period.end
         )
-        self.assertEqual(active.lord, "Sun")
+        self.assertEqual(active.lord, "Moon")
 
-        source_sun_to_moon = datetime(2026, 12, 2, tzinfo=timezone.utc)
-        difference = abs((active.end - source_sun_to_moon).total_seconds())
+        source_moon_end = datetime(2026, 12, 2, tzinfo=timezone.utc)
+        difference = abs((active.end - source_moon_end).total_seconds())
         self.assertLessEqual(difference, 5 * 86400)
 
     def test_missing_moon_is_rejected(self):
