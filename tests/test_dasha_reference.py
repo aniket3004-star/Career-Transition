@@ -91,8 +91,6 @@ class DashaReferenceTests(unittest.TestCase):
             expected_starting_lord="Rahu",
         )
         first = case.assert_matches()
-        periods = vimshottari_timeline(birth, reference.longitudes["Moon"], mahadasha_count=3)
-
         self.assertEqual([period.lord for period in periods], ["Rahu", "Jupiter", "Saturn"])
 
         # The PDF prints Moon longitude to arc-second precision. Its displayed
@@ -103,9 +101,15 @@ class DashaReferenceTests(unittest.TestCase):
             datetime(2014, 5, 30, tzinfo=timezone.utc),
             datetime(2033, 5, 30, tzinfo=timezone.utc),
         )
-        for period, source_date in zip(periods, source_transition_dates):
-            difference = abs((period.end - source_date).total_seconds())
-            self.assertLessEqual(difference, 5 * 86400)
+        case_with_boundaries = DashaReferenceCase(
+            case_id=reference.case_id,
+            birth_datetime=birth,
+            reference=reference,
+            expected_starting_lord="Rahu",
+            expected_mahadasha_end_dates=source_transition_dates,
+            boundary_tolerance_days=5.0,
+        )
+        periods = case_with_boundaries.assert_mahadasha_boundaries(3)
 
         self.assertEqual(first.lord, "Rahu")
 
