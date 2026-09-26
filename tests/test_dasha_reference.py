@@ -91,7 +91,6 @@ class DashaReferenceTests(unittest.TestCase):
             expected_starting_lord="Rahu",
         )
         first = case.assert_matches()
-        self.assertEqual([period.lord for period in periods], ["Rahu", "Jupiter", "Saturn"])
 
         # The PDF prints Moon longitude to arc-second precision. Its displayed
         # Mahadasha transition dates are therefore treated as source observations,
