@@ -66,33 +66,6 @@ class DashaReferenceCase:
                 or not math.isfinite(self.boundary_tolerance_days)
                 or self.boundary_tolerance_days < 0):
             raise ValueError("boundary_tolerance_days must be finite and non-negative")
-
-def proportional_boundary_dates(
-    start: datetime,
-    end: datetime,
-    lords: Tuple[str, ...],
-) -> Tuple[datetime, ...]:
-    """Return source-table-style cumulative Antardasha boundaries."""
-    if not isinstance(start, datetime) or not isinstance(end, datetime):
-        raise ValueError("start and end must be datetimes")
-    if start.tzinfo is None or start.utcoffset() is None or end.tzinfo is None or end.utcoffset() is None:
-        raise ValueError("start and end must be timezone-aware")
-    if end <= start or not lords:
-        raise ValueError("end must be after start and lords must be non-empty")
-    if any(lord not in DASHA_YEARS for lord in lords):
-        raise ValueError("lords must be valid Vimshottari lords")
-    total_weight = sum(DASHA_YEARS[lord] for lord in lords)
-    if total_weight <= 0:
-        raise ValueError("lord weights must be positive")
-    boundaries = []
-    cumulative = 0
-    span = end - start
-    for lord in lords:
-        cumulative += DASHA_YEARS[lord]
-        boundaries.append(start + span * (cumulative / total_weight))
-    return tuple(boundaries)
-
-
     def assert_mahadasha_boundaries(self, mahadasha_count: int | None = None) -> Tuple[DashaPeriod, ...]:
         """Validate source-published Mahadasha boundaries without hiding convention drift."""
         self.validate()
@@ -140,6 +113,33 @@ def proportional_boundary_dates(
                     f"{self.expected_opening_balance_years}, got {actual_years}"
                 )
         return period
+def proportional_boundary_dates(
+    start: datetime,
+    end: datetime,
+    lords: Tuple[str, ...],
+) -> Tuple[datetime, ...]:
+    """Return source-table-style cumulative Antardasha boundaries."""
+    if not isinstance(start, datetime) or not isinstance(end, datetime):
+        raise ValueError("start and end must be datetimes")
+    if start.tzinfo is None or start.utcoffset() is None or end.tzinfo is None or end.utcoffset() is None:
+        raise ValueError("start and end must be timezone-aware")
+    if end <= start or not lords:
+        raise ValueError("end must be after start and lords must be non-empty")
+    if any(lord not in DASHA_YEARS for lord in lords):
+        raise ValueError("lords must be valid Vimshottari lords")
+    total_weight = sum(DASHA_YEARS[lord] for lord in lords)
+    if total_weight <= 0:
+        raise ValueError("lord weights must be positive")
+    boundaries = []
+    cumulative = 0
+    span = end - start
+    for lord in lords:
+        cumulative += DASHA_YEARS[lord]
+        boundaries.append(start + span * (cumulative / total_weight))
+    return tuple(boundaries)
+
+
+
 
 
 def validate_dasha_reference_cases(
