@@ -49,18 +49,4 @@ def compare_golden_case(
     """Compare provider output using provenance and tolerance from one case."""
     golden_case.validate()
     observations = golden_case.observations(observed)
-    return tuple(
-        compare_observation(
-            GoldenObservation(
-                item["case_id"],
-                item["body"],
-                item["expected_longitude"],
-                item["observed_longitude"],
-                item["tolerance_degrees"],
-                item["reference_source"],
-                item["reference_version"],
-            ),
-            compared_at,
-        )
-        for item in observations
-    )
+    return tuple(compare_observation(item, compared_at) for item in observations)
