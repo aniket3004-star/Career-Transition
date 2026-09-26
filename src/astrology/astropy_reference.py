@@ -1,16 +1,25 @@
 """Optional astronomical reference adapter using Astropy.
 
 This is an astronomy reference component, not the Vedic provider. It returns
-geocentric true-ecliptic tropical longitudes and records the explicit JPL
-ephemeris used. Sidereal conversion and house calculations are intentionally
-not performed here.
+geocentric true-ecliptic tropical longitudes and explicit calculation metadata.
+Sidereal conversion and house calculations are intentionally not performed here.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Mapping
 
 BODIES = ("sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune")
+
+
+@dataclass(frozen=True)
+class TropicalReferenceResult:
+    ephemeris: str
+    reference_frame: str
+    equinox: str
+    calculated_at_utc: datetime
+    longitudes: Mapping[str, float]
 
 
 def calculate_tropical_longitudes(
@@ -18,7 +27,7 @@ def calculate_tropical_longitudes(
     latitude: float,
     longitude: float,
     ephemeris: str = "de432s",
-) -> Mapping[str, float]:
+) -> TropicalReferenceResult:
     """Return geocentric true-ecliptic tropical longitudes in degrees.
 
     Requires optional astropy and jplephem packages. No package defaults are
@@ -28,6 +37,8 @@ def calculate_tropical_longitudes(
         raise ValueError("utc_instant must be timezone-aware")
     if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
         raise ValueError("latitude/longitude out of range")
+    if not isinstance(ephemeris, str) or not ephemeris.strip():
+        raise ValueError("ephemeris must be explicitly named")
 
     try:
         from astropy.coordinates import EarthLocation, GeocentricTrueEcliptic
@@ -50,4 +61,10 @@ def calculate_tropical_longitudes(
             )
             values[body.capitalize()] = float(ecliptic.lon.deg % 360.0)
 
-    return values
+    return TropicalReferenceResult(
+        ephemeris=ephemeris,
+        reference_frame="GeocentricTrueEcliptic",
+        equinox=obstime.isot,
+        calculated_at_utc=obstime.to_datetime(timezone=timezone.utc),
+        longitudes=values,
+    )
