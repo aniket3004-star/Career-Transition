@@ -60,6 +60,20 @@ class GoldenCase:
 
     def validate(self) -> None:
         self.metadata.validate()
+        if (isinstance(self.tolerance_degrees, bool)
+                or not isinstance(self.tolerance_degrees, (int, float))
+                or not math.isfinite(self.tolerance_degrees)
+                or self.tolerance_degrees < 0):
+            raise ValueError("tolerance_degrees must be finite and non-negative numeric")
+        if not self.expected_longitudes:
+            raise ValueError("expected_longitudes must not be empty")
+        for body, longitude in self.expected_longitudes.items():
+            if not isinstance(body, str) or not body.strip():
+                raise ValueError("body names must be non-empty strings")
+            if isinstance(longitude, bool) or not isinstance(longitude, (int, float)):
+                raise ValueError(f"longitude for {body!r} must be numeric")
+            if not math.isfinite(longitude) or not 0.0 <= longitude < 360.0:
+                raise ValueError(f"longitude for {body!r} must be finite in [0, 360)")
 
     def observations(self, observed: Mapping[str, float]) -> tuple[dict[str, Any], ...]:
         """Return comparison-ready records carrying this case's provenance."""
@@ -79,20 +93,6 @@ class GoldenCase:
             }
             for body in sorted(self.expected_longitudes)
         )
-        if (isinstance(self.tolerance_degrees, bool)
-                or not isinstance(self.tolerance_degrees, (int, float))
-                or not math.isfinite(self.tolerance_degrees)
-                or self.tolerance_degrees < 0):
-            raise ValueError("tolerance_degrees must be finite and non-negative numeric")
-        if not self.expected_longitudes:
-            raise ValueError("expected_longitudes must not be empty")
-        for body, longitude in self.expected_longitudes.items():
-            if not isinstance(body, str) or not body.strip():
-                raise ValueError("body names must be non-empty strings")
-            if isinstance(longitude, bool) or not isinstance(longitude, (int, float)):
-                raise ValueError(f"longitude for {body!r} must be numeric")
-            if not math.isfinite(longitude) or not 0.0 <= longitude < 360.0:
-                raise ValueError(f"longitude for {body!r} must be finite in [0, 360)")
 
 
 def _required_mapping(value: Any, name: str) -> Mapping[str, Any]:
