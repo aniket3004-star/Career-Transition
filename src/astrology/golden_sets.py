@@ -8,6 +8,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Mapping
 
+from src.astrology.golden_case import GoldenCase
+
 from src.astrology.golden import GoldenEvidence, GoldenObservation, compare_observation
 
 
@@ -36,4 +38,29 @@ def compare_longitude_sets(
             compared_at,
         )
         for body in sorted(expected)
+    )
+
+
+def compare_golden_case(
+    golden_case: GoldenCase,
+    observed: Mapping[str, float],
+    compared_at: datetime | None = None,
+) -> tuple[GoldenEvidence, ...]:
+    """Compare provider output using provenance and tolerance from one case."""
+    golden_case.validate()
+    observations = golden_case.observations(observed)
+    return tuple(
+        compare_observation(
+            GoldenObservation(
+                item["case_id"],
+                item["body"],
+                item["expected_longitude"],
+                item["observed_longitude"],
+                item["tolerance_degrees"],
+                item["reference_source"],
+                item["reference_version"],
+            ),
+            compared_at,
+        )
+        for item in observations
     )
