@@ -60,6 +60,25 @@ class GoldenCase:
 
     def validate(self) -> None:
         self.metadata.validate()
+
+    def observations(self, observed: Mapping[str, float]) -> tuple[dict[str, Any], ...]:
+        """Return comparison-ready records carrying this case's provenance."""
+        if set(self.expected_longitudes) != set(observed):
+            missing = sorted(set(self.expected_longitudes) - set(observed))
+            extra = sorted(set(observed) - set(self.expected_longitudes))
+            raise ValueError(f"body sets differ; missing={missing}, extra={extra}")
+        return tuple(
+            {
+                "case_id": self.metadata.case_id,
+                "body": body,
+                "expected_longitude": self.expected_longitudes[body],
+                "observed_longitude": observed[body],
+                "tolerance_degrees": self.tolerance_degrees,
+                "reference_source": self.metadata.reference_source,
+                "reference_version": self.metadata.reference_version,
+            }
+            for body in sorted(self.expected_longitudes)
+        )
         if (isinstance(self.tolerance_degrees, bool)
                 or not isinstance(self.tolerance_degrees, (int, float))
                 or not math.isfinite(self.tolerance_degrees)
