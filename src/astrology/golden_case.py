@@ -1,4 +1,4 @@
-"""Auditable loading/validation boundary for astronomy golden cases.
+"""Auditable metadata and loading boundary for astronomy golden cases.
 
 Expected astronomical values are external data; this module never computes them.
 """
@@ -11,7 +11,40 @@ import math
 from pathlib import Path
 from typing import Any, Mapping
 
-from src.astrology.golden_case import GoldenCaseMetadata
+
+@dataclass(frozen=True)
+class GoldenCaseMetadata:
+    case_id: str
+    reference_source: str
+    reference_version: str
+    reference_url: str
+    source_timestamp: datetime
+    timezone_id: str
+    zodiac: str
+    ayanamsha: str
+    ephemeris: str
+    coordinate_frame: str
+    node_convention: str
+
+    def validate(self) -> None:
+        required = {
+            "case_id": self.case_id,
+            "reference_source": self.reference_source,
+            "reference_version": self.reference_version,
+            "reference_url": self.reference_url,
+            "timezone_id": self.timezone_id,
+            "zodiac": self.zodiac,
+            "ayanamsha": self.ayanamsha,
+            "ephemeris": self.ephemeris,
+            "coordinate_frame": self.coordinate_frame,
+            "node_convention": self.node_convention,
+        }
+        if any(not isinstance(v, str) or not v.strip() for v in required.values()):
+            raise ValueError("golden-case metadata contains a missing text field")
+        if self.source_timestamp.tzinfo is None or self.source_timestamp.utcoffset() is None:
+            raise ValueError("source_timestamp must be timezone-aware")
+        if not self.reference_url.startswith(("https://", "http://")):
+            raise ValueError("reference_url must be an explicit URL")
 
 
 @dataclass(frozen=True)
@@ -57,12 +90,17 @@ def load_golden_case(path: str | Path) -> GoldenCase:
     if missing:
         raise ValueError(f"metadata missing required fields: {missing}")
 
+    try:
+        source_timestamp = datetime.fromisoformat(metadata["source_timestamp"])
+    except (TypeError, ValueError) as exc:
+        raise ValueError("source_timestamp must be an ISO-8601 datetime") from exc
+
     parsed_metadata = GoldenCaseMetadata(
         case_id=metadata["case_id"],
         reference_source=metadata["reference_source"],
         reference_version=metadata["reference_version"],
         reference_url=metadata["reference_url"],
-        source_timestamp=datetime.fromisoformat(metadata["source_timestamp"]),
+        source_timestamp=source_timestamp,
         timezone_id=metadata["timezone_id"],
         zodiac=metadata["zodiac"],
         ayanamsha=metadata["ayanamsha"],
@@ -70,7 +108,6 @@ def load_golden_case(path: str | Path) -> GoldenCase:
         coordinate_frame=metadata["coordinate_frame"],
         node_convention=metadata["node_convention"],
     )
-    tolerance = root.get("tolerance_degrees")
-    case = GoldenCase(parsed_metadata, dict(longitudes), tolerance)
+    case = GoldenCase(parsed_metadata, dict(longitudes), root.get("tolerance_degrees"))
     case.validate()
     return case
