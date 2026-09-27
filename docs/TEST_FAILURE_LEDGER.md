@@ -36,18 +36,18 @@ Scope: GitHub Actions history available for v2-calculation-foundation, reviewed 
 | 5cc35dd421ad | 36248803209 | Python validation tests | Golden-set validation failure; later green. |
 | 963fa55159f0 | 36248278540 | Python validation tests | Golden-set validation failure; later green. |
 | 4e88f4386a68 | 36245110201 | Python validation tests | Verified test expectation bug: `test_each_downstream_state_requires_previous_gate` set `provenance_complete=True` while leaving `schema_valid=True`; the implementation correctly permits that state because the dependency is only `provenance_complete -> schema_valid`. Later gate-test alignment corrected the historical test expectation. |
-| 3d2e4e756955 | 36245108077 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 38ae213dd982 | 36241719236 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| f26d2f969d44 | 36241714752 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 0a15a805f88f | 36241491597 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 1031aca24d51 | 36241478766 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| c1af8556da79 | 36241476019 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| bd0ebf44f705 | 36241468677 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 9b13cff3fb1a | 36240366773 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 1af7beb1fcaa | 36240363285 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| ff165deff795 | 36235705997 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 4e26ee3859d2 | 36235704858 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 8ea53ca9373a | 36235123138 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
+| 3d2e4e756955 | 36245108077 | Python validation tests | Verified calculation-gate test expectation bug: the test asserted that `provenance_complete=True` alone must fail, but the implementation only requires `schema_valid=True` for that gate. Corrected by `2bbf962fac11`; the corrected test no longer treats schema-valid provenance as an invalid state. |
+| 38ae213dd982 | 36241719236 | Python validation tests | Verified calculation-gate test expectation bug: same `provenance_complete` case as the earlier gate cluster. Corrected by `2bbf962fac11`. |
+| f26d2f969d44 | 36241714752 | Python validation tests | Verified two issues: the same calculation-gate test expectation bug, plus an Astropy test that treated the new `TropicalReferenceResult` dataclass as an iterable mapping, causing `TypeError: 'TropicalReferenceResult' object is not iterable`. The Astropy test was corrected one commit later in `38ae213dd982`; the gate expectation was corrected by `2bbf962fac11`. |
+| 0a15a805f88f | 36241491597 | Python validation tests | Verified calculation-gate test expectation bug: `provenance_complete=True` was tested without a prerequisite violation. The implementation correctly permits that state when `schema_valid=True`. Corrected by `2bbf962fac11`. |
+| 1031aca24d51 | 36241478766 | Python validation tests | Verified calculation-gate test expectation bug: same `provenance_complete` expectation. Corrected by `2bbf962fac11`. |
+| c1af8556da79 | 36241476019 | Python validation tests | Verified calculation-gate test expectation bug: same `provenance_complete` expectation. Corrected by `2bbf962fac11`. |
+| bd0ebf44f705 | 36241468677 | Python validation tests | Verified calculation-gate test expectation bug: same `provenance_complete` expectation. Corrected by `2bbf962fac11`. |
+| 9b13cff3fb1a | 36240366773 | Python validation tests | Verified calculation-gate test expectation bug: same `provenance_complete` expectation. Corrected by `2bbf962fac11`. |
+| 1af7beb1fcaa | 36240363285 | Python validation tests | Verified calculation-gate test expectation bug: same `provenance_complete` expectation. Corrected by `2bbf962fac11`. |
+| ff165deff795 | 36235705997 | Python validation tests | Verified calculation-gate test expectation bug: same `provenance_complete` expectation. Corrected by `2bbf962fac11`. |
+| 4e26ee3859d2 | 36235704858 | Python validation tests | Verified calculation-gate test expectation bug: `provenance_complete=True` was incorrectly treated as an invalid standalone state despite `schema_valid=True` satisfying its actual prerequisite. Corrected by `2bbf962fac11`. |
+| 8ea53ca9373a | 36235123138 | Python validation tests | Verified calculation-gate test expectation bug: same `provenance_complete` expectation. Corrected by `2bbf962fac11`. |
 | 2fbf4949d5c7 | 35478633940 | Python validation tests | Verified CLI contract mismatch: `test_valid_json_returns_schema_only_result` used the legacy nested envelope while the validator required the newer explicit top-level contract. |
 | 710d83998033 | 35475998450 | Python validation tests | Verified same recurring CLI/input-contract mismatch: legacy test fixture versus newer explicit input contract. |
 | a22cb5d2877b | 35473364311 | Python validation tests | Verified same recurring CLI/input-contract mismatch: legacy nested fixture versus newer explicit validator contract. |
@@ -68,7 +68,13 @@ Scope: GitHub Actions history available for v2-calculation-foundation, reviewed 
 - Priyanka Dasha failure: incorrect active Antardasha expectation; fixed in d78d62a.
 - Dasha boundary-harness failures: recent refactor regressions; current head is green.
 
-## Important unresolved historical set
+## Historical audit progress
+
+The oldest unresolved cluster has now been root-caused from the actual workflow logs and commit contents. The repeated `provenance_complete` failures were a historical test-expectation defect, not a calculation-contract implementation defect: the gate is intentionally schema-first, so `provenance_complete=True` is valid when `schema_valid=True`; downstream states are the ones that require the preceding certification gate. The test was corrected in `2bbf962fac1111cc9242c801d34dc4b19a0315ec`, and that correction was subsequently verified green in both workflows (Tests run `36255959519`; Python validation run `36255959535`).
+
+The `f26d2f969d44` Astropy failure also contained a separate, verified API/test mismatch: the test iterated a `TropicalReferenceResult` as though it were a mapping. One commit later, `38ae213dd982`, the test was updated to assert the dataclass fields instead.
+
+Rows still marked `UNRESOLVED HISTORICAL FAILURE` have not yet been root-caused and will not be inferred from later green runs.
 
 Rows without a verified diagnosis remain explicitly marked unresolved. A later green commit is not treated as proof of cause or resolution.
 
