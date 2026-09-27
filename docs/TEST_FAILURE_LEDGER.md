@@ -5,7 +5,7 @@ Scope: GitHub Actions history available for v2-calculation-foundation, reviewed 
 - Workflow runs reviewed: 155
 - Failed workflow runs: 66
 - Unique commits with at least one failed run: 44
-- Current head: 05c677bfd5add7ab75dca7bdf4502deb46358af4
+- Current head: 4712de700b82673ae2a309b74589bed2fa312fc0
 - Current head: green in both workflows
 
 ## Every unique failed commit
@@ -74,7 +74,7 @@ The oldest unresolved cluster has now been root-caused from the actual workflow 
 
 The `f26d2f969d44` Astropy failure also contained a separate, verified API/test mismatch: the test iterated a `TropicalReferenceResult` as though it were a mapping. One commit later, `38ae213dd982`, the test was updated to assert the dataclass fields instead.
 
-Rows still marked `UNRESOLVED HISTORICAL FAILURE` have not yet been root-caused and will not be inferred from later green runs.
+No table rows remain marked `UNRESOLVED HISTORICAL FAILURE`; every failed commit currently listed has a verified diagnosis or an explicitly documented external/transient cause.
 
 Rows without a verified diagnosis remain explicitly marked unresolved. A later green commit is not treated as proof of cause or resolution.
 
