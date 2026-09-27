@@ -35,7 +35,7 @@ Scope: GitHub Actions history available for v2-calculation-foundation, reviewed 
 | f8db2961630b | 36248840655, 36248840611 | Tests, Python validation tests | CI workflow integration failure; later baseline green. |
 | 5cc35dd421ad | 36248803209 | Python validation tests | Golden-set validation failure; later green. |
 | 963fa55159f0 | 36248278540 | Python validation tests | Golden-set validation failure; later green. |
-| 4e88f4386a68 | 36245110201 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
+| 4e88f4386a68 | 36245110201 | Python validation tests | Verified test expectation bug: `test_each_downstream_state_requires_previous_gate` set `provenance_complete=True` while leaving `schema_valid=True`; the implementation correctly permits that state because the dependency is only `provenance_complete -> schema_valid`. Later gate-test alignment corrected the historical test expectation. |
 | 3d2e4e756955 | 36245108077 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
 | 38ae213dd982 | 36241719236 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
 | f26d2f969d44 | 36241714752 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
