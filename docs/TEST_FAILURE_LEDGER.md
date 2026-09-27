@@ -1,6 +1,6 @@
 # V1 Test Failure Ledger
 
-Scope: GitHub Actions history available for v2-calculation-foundation, reviewed 2026-09-27.
+Scope: GitHub Actions history available for v2-calculation-foundation, reviewed 2026-09-27; historical CLI/input-contract failures independently re-verified.
 
 - Workflow runs reviewed: 155
 - Failed workflow runs: 66
@@ -48,14 +48,14 @@ Scope: GitHub Actions history available for v2-calculation-foundation, reviewed 
 | ff165deff795 | 36235705997 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
 | 4e26ee3859d2 | 36235704858 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
 | 8ea53ca9373a | 36235123138 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 2fbf4949d5c7 | 35478633940 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 710d83998033 | 35475998450 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| a22cb5d2877b | 35473364311 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 3bc8ae118b5e | 35470252432 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 8fe1c516df42 | 35467402126 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 137b459d7ecf | 35464288783 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 8eafa62277a8 | 35463663962 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
-| 066793a7e0c5 | 35463430739 | Python validation tests | **UNRESOLVED HISTORICAL FAILURE** — no root-cause claim made yet. |
+| 2fbf4949d5c7 | 35478633940 | Python validation tests | Verified CLI contract mismatch: `test_valid_json_returns_schema_only_result` used the legacy nested envelope while the validator required the newer explicit top-level contract. |
+| 710d83998033 | 35475998450 | Python validation tests | Verified same recurring CLI/input-contract mismatch: legacy test fixture versus newer explicit input contract. |
+| a22cb5d2877b | 35473364311 | Python validation tests | Verified same recurring CLI/input-contract mismatch: legacy nested fixture versus newer explicit validator contract. |
+| 3bc8ae118b5e | 35470252432 | Python validation tests | Verified same recurring CLI/input-contract mismatch: test supplied legacy nested fields while validator required explicit top-level configuration. |
+| 8fe1c516df42 | 35467402126 | Python validation tests | Verified CLI/input-contract fixture mismatch: valid-envelope test did not match the explicit contract enforced by the validator at that commit. |
+| 137b459d7ecf | 35464288783 | Python validation tests | Verified `--save` contract mismatch: test wrote to a temporary path outside the CLI's required gitignored `outputs/` directory, producing exit code 2. |
+| 8eafa62277a8 | 35463663962 | Python validation tests | Verified CLI import-path mismatch: `test_cli.py` imported `src.cli`, but the historical commit only contained root-level `cli.py`; `src/cli.py` was absent. |
+| 066793a7e0c5 | 35463430739 | Python validation tests | Verified CLI import-path mismatch: `test_cli.py` imported `src.cli`, but the historical commit only contained root-level `cli.py`; `src/cli.py` was absent. |
 
 ## Verified clusters
 
