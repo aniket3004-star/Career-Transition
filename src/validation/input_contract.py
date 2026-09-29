@@ -123,6 +123,6 @@ def validate_birth_input(payload: Mapping[str, Any]) -> ValidationResult:
     if payload.get("provider_settings_verified") is not True:
         errors.append("provider_settings_verified must be true before provider output is treated as configured")
     if not _nonblank(payload.get("source_record_id")):
-        warnings.append("source_record_id absent: provenance cannot be traced to a retained source record")
+        errors.append("source_record_id must be explicitly supplied to complete provenance")
 
     return ValidationResult(not errors, tuple(errors), tuple(warnings))
