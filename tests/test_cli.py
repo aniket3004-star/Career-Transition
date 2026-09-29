@@ -64,7 +64,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertFalse(output["schema_valid"])
         self.assertFalse(output["provenance_complete"])
-        self.assertEqual(output["evidence_label"], "INPUT_SCHEMA_ONLY")
+        self.assertEqual(output["evidence_label"], "quarantined")
         self.assertTrue(any("source_record_id" in error for error in output["errors"]))
 
     def test_valid_file_input_returns_schema_only_result(self):
