@@ -100,12 +100,13 @@ class InputContractTests(unittest.TestCase):
         self.assertFalse(result.valid)
         self.assertTrue(any("ambiguous" in error for error in result.errors))
 
-    def test_warns_when_source_record_id_is_absent(self):
+    def test_rejects_missing_source_record_id(self):
         payload = dict(VALID)
         payload.pop("source_record_id")
         result = validate_birth_input(payload)
-        self.assertTrue(result.valid, result.errors)
-        self.assertTrue(result.warnings)
+        self.assertFalse(result.valid)
+        self.assertFalse(result.warnings)
+        self.assertTrue(any("source_record_id" in error for error in result.errors))
 
 
 if __name__ == "__main__":

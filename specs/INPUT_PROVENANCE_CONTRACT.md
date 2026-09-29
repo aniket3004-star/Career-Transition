@@ -1,11 +1,11 @@
 # V1 Input & Provenance Contract
 
-Status: **Draft specification; not implemented or validated**  
+Status: **Draft calculation-phase specification; not implemented or validated in V1-alpha**  
 Date: 2026-09-19
 
 ## Purpose
 
-Define the minimum evidence required before V1 accepts chart-calculation output. This contract prevents defaults from being mistaken for provider facts. It is an engineering/data-integrity specification, not a claim that astrology predicts career outcomes.
+Define the minimum evidence required before the V2 calculation phase accepts chart-calculation output. V1-alpha only validates its narrower input/provenance envelope documented in `V1_ACCEPTANCE.md`. This contract prevents defaults from being mistaken for provider facts. It is an engineering/data-integrity specification, not a claim that astrology predicts career outcomes.
 
 ## Required input envelope
 
