@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: ["main", "v2-calculation-foundation"]
+    branches: ["main", "v2-calculation-foundation", "v2-active"]
   pull_request:
 
 jobs:
