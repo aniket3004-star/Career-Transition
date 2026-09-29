@@ -7,7 +7,7 @@ FIXTURE = Path(__file__).parent / "fixtures" / "astronomy_goldens.json"
 
 
 class AstronomyGoldenRegistryTests(unittest.TestCase):
-    def test_registry_is_explicitly_pending_until_reference_values_are_captured(self):
+    def test_registry_schema_requires_reproducible_reference_metadata(self):
         payload = json.loads(FIXTURE.read_text(encoding="utf-8"))
 
         self.assertEqual(payload["schema_version"], 1)
@@ -15,26 +15,52 @@ class AstronomyGoldenRegistryTests(unittest.TestCase):
         self.assertGreaterEqual(len(payload["cases"]), 1)
 
         for case in payload["cases"]:
-            self.assertIn("case_id", case)
+            self.assertIsInstance(case.get("case_id"), str)
+            self.assertTrue(case["case_id"].strip())
             self.assertIn(case["status"], {"REFERENCE_PENDING", "CERTIFIED"})
-            self.assertIn("target", case)
-            self.assertIn("center", case)
-            self.assertIn("input_time", case)
-            self.assertIn("time_scale", case)
-            self.assertIn("reference_frame", case)
-            self.assertIn("reference_plane", case)
-            self.assertIn("treatment", case)
-            self.assertIn("quantity", case)
-            self.assertIn("units", case)
-            self.assertIn("source", case)
-            self.assertIn("url", case["source"])
+
+            for field in (
+                "target",
+                "center",
+                "input_time",
+                "time_scale",
+                "calendar_convention",
+                "reference_frame",
+                "reference_plane",
+                "treatment",
+                "quantity",
+                "units",
+                "source",
+                "query_settings",
+                "provenance_url",
+                "captured_value",
+                "tolerance",
+                "capture_date",
+                "notes",
+            ):
+                self.assertIn(field, case)
+
+            for endpoint in ("target", "center"):
+                self.assertIsInstance(case[endpoint], dict)
+                self.assertTrue(str(case[endpoint].get("id", "")).strip())
+                self.assertTrue(str(case[endpoint].get("name", "")).strip())
+
+            self.assertIsInstance(case["query_settings"], dict)
+            self.assertTrue(case["query_settings"])
+            self.assertTrue(case["provenance_url"].startswith("https://"))
+            self.assertTrue(case["source"]["url"].startswith("https://"))
+            self.assertTrue(case["source"]["api_documentation"].startswith("https://"))
+            self.assertTrue(str(case["source"].get("name", "")).strip())
+            self.assertTrue(str(case["source"].get("version", "")).strip())
 
             if case["status"] == "REFERENCE_PENDING":
                 self.assertIsNone(case["captured_value"])
                 self.assertIsNone(case["tolerance"])
+                self.assertIsNone(case["capture_date"])
             else:
                 self.assertIsNotNone(case["captured_value"])
                 self.assertIsNotNone(case["tolerance"])
+                self.assertIsNotNone(case["capture_date"])
 
 
 if __name__ == "__main__":
