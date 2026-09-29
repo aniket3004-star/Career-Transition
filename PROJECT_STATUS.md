@@ -1,7 +1,7 @@
 # Project Status — Career Transition Astrology V1
 
-**Last updated:** 2026-09-21  
-**Status:** V1-alpha acceptance evidence complete; V2 remains unopened.
+**Last updated:** 2026-09-29  
+**Status:** V1 closure remediation prepared after independent audit; CI verification pending.
 
 ## Objective and scope
 Build a testable V1 for Vedic astrology career/job-transition decision support. Scope is limited to career/job transitions. No deterministic outcomes, unsupported classifications, or expansion into wealth, health, family, love, legal, or unrelated astrology.
