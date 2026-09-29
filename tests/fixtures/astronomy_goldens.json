@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "REFERENCE_PENDING",
+  "purpose": "Registry for independently sourced astronomy reference cases. Pending cases are not certified goldens.",
+  "cases": [
+    {
+      "case_id": "jpl-geocentric-moon-2000-01-01T12:00:00Z",
+      "status": "REFERENCE_PENDING",
+      "target": {"id": "301", "name": "Moon"},
+      "center": {"id": "500@399", "name": "geocenter"},
+      "input_time": "2000-01-01T12:00:00Z",
+      "time_scale": "UT",
+      "calendar_convention": "GREGORIAN",
+      "reference_frame": "ICRF",
+      "reference_plane": "ecliptic-of-date",
+      "treatment": "apparent-airless",
+      "quantity": "observer-centered ecliptic longitude and latitude",
+      "units": "degrees",
+      "source": {
+        "name": "JPL Horizons",
+        "version": "Horizons API 1.3 (2025 June)",
+        "url": "https://ssd.jpl.nasa.gov/horizons/",
+        "api_documentation": "https://ssd-api.jpl.nasa.gov/doc/horizons.html"
+      },
+      "query_settings": {
+        "format": "json",
+        "COMMAND": "301",
+        "OBJ_DATA": "NO",
+        "MAKE_EPHEM": "YES",
+        "EPHEM_TYPE": "OBSERVER",
+        "CENTER": "500@399",
+        "TLIST": "2000-01-01 12:00:00",
+        "TLIST_TYPE": "CAL",
+        "QUANTITIES": "31",
+        "REF_SYSTEM": "ICRF",
+        "APPARENT": "AIRLESS",
+        "CAL_TYPE": "GREGORIAN"
+      },
+      "provenance_url": "https://ssd-api.jpl.nasa.gov/api/horizons.api",
+      "captured_value": null,
+      "tolerance": null,
+      "capture_date": null,
+      "notes": "Query definition is registered before capture. Do not use this case as a passing astronomical golden until the source output is independently captured and reviewed."
+    }
+  ]
+}
