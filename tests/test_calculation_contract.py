@@ -20,6 +20,65 @@ class CalculationContractTests(unittest.TestCase):
         )
         self.assertEqual(request.birth_datetime_utc.tzinfo, timezone.utc)
 
+    def test_request_rejects_naive_or_non_utc_datetime(self):
+        with self.assertRaises(ValueError):
+            CalculationRequest(
+                birth_datetime_utc=datetime(2000, 1, 15, 6, 30),
+                latitude=20.0,
+                longitude=85.0,
+                ayanamsha="Lahiri",
+                zodiac="sidereal",
+                house_system="whole_sign",
+            )
+
+    def test_request_rejects_invalid_coordinates_and_empty_conventions(self):
+        with self.assertRaises(ValueError):
+            CalculationRequest(
+                birth_datetime_utc=datetime(2000, 1, 15, 6, 30, tzinfo=timezone.utc),
+                latitude=91.0,
+                longitude=85.0,
+                ayanamsha="Lahiri",
+                zodiac="sidereal",
+                house_system="whole_sign",
+            )
+        with self.assertRaises(ValueError):
+            CalculationRequest(
+                birth_datetime_utc=datetime(2000, 1, 15, 6, 30, tzinfo=timezone.utc),
+                latitude=20.0,
+                longitude=85.0,
+                ayanamsha="",
+                zodiac="sidereal",
+                house_system="whole_sign",
+            )
+
+    def test_position_rejects_invalid_ranges_and_nonfinite_values(self):
+        with self.assertRaises(ValueError):
+            PlanetaryPosition(body="Moon", longitude=360.0, latitude=0.0, distance_au=1.0)
+        with self.assertRaises(ValueError):
+            PlanetaryPosition(body="Moon", longitude=float("nan"), latitude=0.0, distance_au=1.0)
+        with self.assertRaises(ValueError):
+            PlanetaryPosition(body="Moon", longitude=10.0, latitude=0.0, distance_au=-1.0)
+
+    def test_record_requires_utc_timestamp_and_explicit_identity(self):
+        request = CalculationRequest(
+            birth_datetime_utc=datetime(2000, 1, 15, 6, 30, tzinfo=timezone.utc),
+            latitude=20.0,
+            longitude=85.0,
+            ayanamsha="Lahiri",
+            zodiac="sidereal",
+            house_system="whole_sign",
+        )
+        with self.assertRaises(ValueError):
+            CalculationRecord(
+                provider="",
+                provider_version="1",
+                ephemeris="synthetic",
+                request=request,
+                positions=(),
+                calculation_timestamp=datetime(2026, 9, 29),
+                provenance={},
+            )
+
     def test_position_is_structured_and_unit_explicit(self):
         position = PlanetaryPosition(
             body="Moon",
