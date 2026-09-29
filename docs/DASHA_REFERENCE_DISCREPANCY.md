@@ -35,14 +35,16 @@ Therefore the observed four-day difference cannot be responsibly attributed to o
 
 ## Alternative balance-method check
 
-There is another documented Vimshottari approach: calculate the fraction of the birth Nakshatra from the **time spent between Nakshatra ingress and egress**, rather than from the Moon's angular fraction at birth. Saravali explicitly describes this as a separate "Time Method." citeturn0search0
+There is another documented Vimshottari approach: calculate the fraction of the birth Nakshatra from the **time spent between Nakshatra ingress and egress**, rather than from the Moon's angular fraction at birth. Saravali explicitly describes this as a separate "Time Method":
+
+https://saravali.github.io/astrology/dasa_balance.html
 
 I tested that method independently with Swiss Ephemeris, using the birth instant and Lahiri sidereal Moon. For this chart:
 
 - Birth Moon ≈ 73.615129° sidereal.
 - Ardra ingress ≈ 19-Oct-1989 11:48 UTC.
 - Next Nakshatra ingress ≈ 20-Oct-1989 11:10 UTC.
-- The time-method opening balance differs materially from the longitude-fraction method, producing an endpoint roughly **28 days earlier**, not roughly 4 days earlier.
+- The time-method opening balance produces a Rahu endpoint around **1-Jul-1998**, roughly **32 days later** than the Dharmayana 30-May-1998 endpoint.
 
 So the time-method hypothesis does **not** explain the Dharmayana table under that independent ephemeris/convention.
 
@@ -56,9 +58,16 @@ This is a diagnostic only. It does **not** establish that Dharmayana internally 
 
 ## External convention evidence
 
-Published calculators/software use different year-length conventions, including 365.25 days, 365.2425 days, and approximately 365.2564 days. The existence of multiple conventions is documented by independent references. citeturn0search8turn0search10
+Independent published calculators document multiple conventions. For example:
 
-Dharmayana's public site describes its Kundali service but does not publicly document the specific internal Vimshottari opening-balance convention used for this PDF. citeturn3search0
+- PanchangTime documents a 365.25-day Vimshottari year:
+  https://panchangtime.com/methodology/vimshottari-dasha
+- Vedic Proof documents a 365.2425-day convention:
+  https://vedicproof.com/vimshottari-dasha-api
+- Totally Tarot documents a 365.256364-day convention:
+  https://totallytarot.net/library/tool/dasha
+
+These differences are real implementation parameters, but they are not large enough in this case to explain the observed four-day opening-boundary discrepancy by themselves.
 
 ## Engineering decision
 
