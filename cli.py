@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
             "accuracy_verified": False,
             "career_rules_eligible": False,
             "calculation_layer": "not_certified",
-            "evidence_label": result.evidence_label,
+            "evidence_label": result.evidence_label if result.valid else "quarantined",
             "errors": list(result.errors),
             "warnings": list(result.warnings),
             "career_outlook": None,
