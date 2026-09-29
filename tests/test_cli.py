@@ -44,6 +44,54 @@ class CliTests(unittest.TestCase):
         self.assertIsNone(output["career_outlook"])
         self.assertIn("No planetary positions", output["message"])
 
+    def test_missing_source_record_id_is_quarantined(self):
+        payload = {
+            "birth_date": "2000-01-15",
+            "birth_time": "12:00:00",
+            "timezone": "Asia/Kolkata",
+            "latitude": 20.0,
+            "longitude": 85.0,
+            "provider": "synthetic-fixture",
+            "provider_version": "1",
+            "ayanamsha": "Lahiri",
+            "zodiac": "sidereal",
+            "house_system": "whole_sign",
+            "ephemeris": "synthetic-test-ephemeris",
+            "calculation_timestamp": "2026-09-19T10:00:00+00:00",
+            "provider_settings_verified": True,
+        }
+        code, output = self._run("--json", json.dumps(payload))
+        self.assertEqual(code, 1)
+        self.assertFalse(output["schema_valid"])
+        self.assertFalse(output["provenance_complete"])
+        self.assertEqual(output["evidence_label"], "INPUT_SCHEMA_ONLY")
+        self.assertTrue(any("source_record_id" in error for error in output["errors"]))
+
+    def test_valid_file_input_returns_schema_only_result(self):
+        payload = {
+            "birth_date": "2000-01-15",
+            "birth_time": "12:00:00",
+            "timezone": "Asia/Kolkata",
+            "latitude": 20.0,
+            "longitude": 85.0,
+            "provider": "synthetic-fixture",
+            "provider_version": "1",
+            "ayanamsha": "Lahiri",
+            "zodiac": "sidereal",
+            "house_system": "whole_sign",
+            "ephemeris": "synthetic-test-ephemeris",
+            "calculation_timestamp": "2026-09-19T10:00:00+00:00",
+            "provider_settings_verified": True,
+            "source_record_id": "synthetic-file-record",
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "input.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            code, output = self._run("--file", str(path))
+        self.assertEqual(code, 0)
+        self.assertTrue(output["schema_valid"])
+        self.assertTrue(output["provenance_complete"])
+
     def test_invalid_json_is_rejected(self):
         code, output = self._run("--json", "not-json")
         self.assertEqual(code, 2)
