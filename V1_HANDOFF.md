@@ -2,7 +2,7 @@
 
 ## State
 
-**V1-alpha is an input-validation prototype, not a certified astrology or career-forecasting product.** The acceptance checklist in `V1_ACCEPTANCE.md` remains authoritative; do not mark V1-alpha complete unless every checklist item has evidence.
+**V1-alpha is an input-validation prototype, not a certified astrology or career-forecasting product.** The acceptance checklist in `V1_ACCEPTANCE.md` remains authoritative. An independent audit identified a provenance-state inconsistency; this remediation branch makes `source_record_id` mandatory and quarantines rejected validation envelopes. Do not mark V1-alpha closed until CI verifies the remediation.
 
 ## Run locally
 

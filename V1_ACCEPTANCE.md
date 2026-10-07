@@ -1,13 +1,13 @@
 # V1-alpha acceptance (agent stop condition)
 
-Status: **DONE**
+Status: **V1 closure remediation prepared; CI verification pending**
 
-V1-alpha acceptance evidence is complete. The acceptance-satisfying commit is `5cc14f40f1c71f9772c3c8163a83a903c9401bdd`; GitHub Actions run #51 (`35547730899`) completed successfully for that exact commit on 2026-09-21. Do not start V2 until a human explicitly opens V2.
+V1-alpha acceptance evidence was historically complete, but an independent audit identified a provenance-state inconsistency. This branch contains the remediation; the acceptance-satisfying fix is not considered closed until CI verifies it. GitHub Actions run #51 (`35547730899`) completed successfully for that exact commit on 2026-09-21. Do not start V2 until a human explicitly opens V2.
 
 ## Product scope for V1-alpha
 A local CLI (and optional tiny local web form) that:
 1. Collects birth details.
-2. Validates them with the fail-closed input contract.
+2. Validates them with the fail-closed input contract, including mandatory `source_record_id` provenance.
 3. Returns either a structured **quarantined** envelope or a **schema_valid + provenance_complete** envelope.
 4. Does **not** calculate planetary longitudes, Dasha, transits, or career outlook yet.
 5. Prints a clear "calculation layer not certified" status.
