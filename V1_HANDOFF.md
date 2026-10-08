@@ -2,7 +2,7 @@
 
 ## State
 
-**V1-alpha is an input-validation prototype, not a certified astrology or career-forecasting product.** The acceptance checklist in `V1_ACCEPTANCE.md` remains authoritative. An independent audit identified a provenance-state inconsistency; this remediation branch makes `source_record_id` mandatory and quarantines rejected validation envelopes. Do not mark V1-alpha closed until CI verifies the remediation.
+**V1-alpha is an input-validation prototype, not a certified astrology or career-forecasting product.** The merged remediation at `2a29e137e4cc79b8bad5330d382cc8a3142f012c` makes `source_record_id` mandatory and quarantines rejected envelopes. The scoped V1-alpha input-validation acceptance checklist is satisfied, with successful post-merge CI on 2026-10-07 ([input-contract tests](https://github.com/aniket3004-star/Career-Transition/actions/runs/37576541663), [unit tests](https://github.com/aniket3004-star/Career-Transition/actions/runs/37576541628)). This does not certify astrology calculations or career forecasting; V2 remains unopened until a human explicitly opens it.
 
 ## Run locally
 
@@ -45,4 +45,4 @@ python cli.py --file input.synthetic.json --save outputs/result.json
 
 ## Acceptance status
 
-V1-alpha acceptance evidence is complete as recorded in `V1_ACCEPTANCE.md` and `PROJECT_STATUS.md`. The calculation layer remains uncertified and V2 remains unopened.
+V1-alpha scoped acceptance evidence is complete as recorded in `V1_ACCEPTANCE.md` and `PROJECT_STATUS.md`, including post-merge CI verification for commit `2a29e137e4cc79b8bad5330d382cc8a3142f012c`. The calculation layer remains uncertified and V2 remains unopened.
