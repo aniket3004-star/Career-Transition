@@ -1,7 +1,7 @@
 # Project Status — Career Transition Astrology V1
 
-**Last updated:** 2026-09-29  
-**Status:** V1 closure remediation prepared after independent audit; CI verification pending.
+**Last updated:** 2026-10-09  
+**Status:** V1-alpha scoped input-validation acceptance checklist complete; remediation CI verified; calculation layer remains uncertified and V2 remains unopened.
 
 ## Objective and scope
 Build a testable V1 for Vedic astrology career/job-transition decision support. Scope is limited to career/job transitions. No deterministic outcomes, unsupported classifications, or expansion into wealth, health, family, love, legal, or unrelated astrology.
@@ -10,10 +10,11 @@ Build a testable V1 for Vedic astrology career/job-transition decision support. 
 The alpha is intentionally limited to collecting and validating a birth-input/provenance envelope and returning structured status. It does not calculate planetary longitudes, Dasha, transits, or career outlook. `career_outlook` remains null; `career_rules_eligible` remains false. The isolated `src/astrology/dasha.py` module is not integrated into the CLI and is not independently certified.
 
 ## Acceptance evidence
-The acceptance-satisfying commit is `5cc14f40f1c71f9772c3c8163a83a903c9401bdd`.
-- GitHub Actions run #51 (`35547730899`) completed successfully for that exact commit on 2026-09-21.
-- The acceptance evidence files and tests are present in the repository tree at that commit.
-- `V1_ACCEPTANCE.md` records the individual evidence paths and explicitly keeps the optional local form optional.
+The current V1-alpha remediation/acceptance commit is `2a29e137e4cc79b8bad5330d382cc8a3142f012c` (merge of PR #8).
+- GitHub Actions run `37576541663` completed on 2026-10-07; its `input-contract-tests` job succeeded, and the job log confirms checkout of the exact merge SHA.
+- GitHub Actions run `37576541628` completed on 2026-10-07; its `unittest` job succeeded, and the job log confirms checkout of the exact merge SHA.
+- `V1_ACCEPTANCE.md` links this post-merge CI evidence and documents mandatory `source_record_id` rejection/quarantine.
+- This evidence supports only the scoped V1-alpha input-validation prototype; it does not validate astrology calculations or career forecasting.
 
 ## Repository evidence
 - `.gitignore` excludes caches, virtual environments, secrets/local config, private birth-data/output directories, ZIP dumps, and logs.
